@@ -34,4 +34,6 @@ public sealed class SRLayerMask {
     public const int Water = 16;
     
     public const int UI = 32;
+    
+    public const int Ground = 64;
 }
