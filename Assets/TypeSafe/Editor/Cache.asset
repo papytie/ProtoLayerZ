@@ -12,4 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2e3ac75b9f6508144852c9023eb1e4a5, type: 3}
   m_Name: Cache
   m_EditorClassIdentifier: 
-  Contents: []
+  Contents:
+  - Path: Assets/Resources/DOTweenSettings.asset
+    Type: DG.Tweening.Core.DOTweenSettings, DOTween, Version=1.0.0.0, Culture=neutral,
+      PublicKeyToken=null

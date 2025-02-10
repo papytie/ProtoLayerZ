@@ -17,7 +17,7 @@ MonoBehaviour:
   ClassNameSuffix: 
   EnableWaiting: 1
   EnableWhitelist: 0
-  HasShownWelcome: 0
+  HasShownWelcome: 1
   IncludeNonActiveScenes: 0
   MinimumBuildTime: 3.5
   Namespace: 
