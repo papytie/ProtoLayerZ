@@ -31,4 +31,5 @@ MonoBehaviour:
   Whitelist: []
   DisabledDataSources: []
   AudioMixers: []
-  Animators: []
+  Animators:
+  - bf7a88b91ab0fe4469f6e1b78d3c5e45
