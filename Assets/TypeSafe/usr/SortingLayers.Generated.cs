@@ -21,14 +21,28 @@ public sealed class SRSortingLayers {
     
     private const string _tsInternal = "1.5.0";
     
-    public static global::TypeSafe.SortingLayer Default {
+    public static global::TypeSafe.SortingLayer Back {
         get {
             return @__all[0];
         }
     }
     
+    public static global::TypeSafe.SortingLayer Default {
+        get {
+            return @__all[1];
+        }
+    }
+    
+    public static global::TypeSafe.SortingLayer Front {
+        get {
+            return @__all[2];
+        }
+    }
+    
     private static global::System.Collections.Generic.IList<global::TypeSafe.SortingLayer> @__all = new global::System.Collections.ObjectModel.ReadOnlyCollection<global::TypeSafe.SortingLayer>(new global::TypeSafe.SortingLayer[] {
-                new global::TypeSafe.SortingLayer("Default", 0)});
+                new global::TypeSafe.SortingLayer("Back", 1578769397),
+                new global::TypeSafe.SortingLayer("Default", 0),
+                new global::TypeSafe.SortingLayer("Front", -1376440981)});
     
     public static global::System.Collections.Generic.IList<global::TypeSafe.SortingLayer> All {
         get {
