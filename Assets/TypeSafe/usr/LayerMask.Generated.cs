@@ -36,4 +36,6 @@ public sealed class SRLayerMask {
     public const int UI = 32;
     
     public const int Ground = 64;
+    
+    public const int Spaceship = 128;
 }

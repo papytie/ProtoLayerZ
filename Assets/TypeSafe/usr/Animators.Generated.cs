@@ -48,4 +48,34 @@ public sealed class SRAnimators {
             public const int Base_Layer = 0;
         }
     }
+    
+    public sealed class Animator_Hero2 {
+        
+        private Animator_Hero2() {
+        }
+        
+        public sealed class Parameters {
+            
+            private Parameters() {
+            }
+            
+            public const int xVelocity = -1879171339;
+            
+            public const int yVelocity = -1736111434;
+            
+            public const int isGrounded = 1360771445;
+            
+            public const int isSliding = 383106620;
+            
+            public const int isMoving = -27727268;
+        }
+        
+        public sealed class Layers {
+            
+            private Layers() {
+            }
+            
+            public const int Base_Layer = 0;
+        }
+    }
 }
