@@ -3,6 +3,7 @@ using UnityEditor.ShaderGraph.Internal;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Windows;
+using static UnityEditor.ShaderGraph.Internal.KeywordDependentCollection;
 
 
 public class F_PlayerController3 : MonoBehaviour
@@ -28,7 +29,6 @@ public class F_PlayerController3 : MonoBehaviour
     [SerializeField] private float maxDistVectorForVeloCorrection = 5;
     [SerializeField] float movementSeepAccel = 2;
     [SerializeField] float canCheckGroundMaxTime = 0.2f;
-    [SerializeField] private float maxDistGroundBeforeVeloCorrection = 0.5f;
     public float canCheckGroundCounter = 0;
 
 
@@ -38,7 +38,7 @@ public class F_PlayerController3 : MonoBehaviour
 
     public bool canCheckGround = true;
 
-    public bool isGroundedButFarFromGround;
+    //public bool isGroundedButFarFromGround;
     public bool isSliding;
     public bool isMoving;
     public bool isJumping;
@@ -57,8 +57,19 @@ public class F_PlayerController3 : MonoBehaviour
 
     //TO DO : CHANGED BY LEVEL
     public float strateGravityScale = 9;
-    
-    
+
+
+    private void OnTriggerEnter2D(Collider2D collision) {
+
+        //si on est dans les airs, que le délai canCheckGroundCounter est passé et qu'on trigger le sol, on peut check le sol
+        if(!myGroundCheck.IsGrounded && canCheckGroundCounter <= 0 && ((1 << collision.gameObject.layer) & myGroundCheck.GroundLayer) != 0) {
+            canCheckGround = true;
+            canCheckGroundCounter = canCheckGroundMaxTime;
+        }
+
+
+    }
+
     private void Awake() {
         controls = new Controls();
         move = controls.MainCharacterMap.Walking;
@@ -85,6 +96,10 @@ public class F_PlayerController3 : MonoBehaviour
     private void Update() {
         CheckInput();
 
+        if(!myGroundCheck.IsGrounded && !myGroundCheck.IsGroundOverlaped) {
+            canCheckGround = false;
+        }
+
         if(canCheckGround) {
             myGroundCheck.CheckGroundEnabled = true;
         } else {
@@ -109,8 +124,6 @@ public class F_PlayerController3 : MonoBehaviour
             canJump = true;
         }
 
-        UpdateIsGroundedButFarFromGround();
-
         UpdateCanCheckGroundCounter();
         UpdateHangCounter();
         UpdateJumpBufferCounter();
@@ -125,6 +138,8 @@ public class F_PlayerController3 : MonoBehaviour
 
         CheckJump();
 
+
+
         SwitchPhysicMaterial();
         ApplyMovement();
 
@@ -135,15 +150,6 @@ public class F_PlayerController3 : MonoBehaviour
     private void CheckInput() {
         xInput = move.ReadValue<float>();
         slideInput = slide.ReadValue<float>();
-    }
-
-    private void UpdateIsGroundedButFarFromGround() {
-        if(myGroundCheck.IsGrounded
-            && Vector2.Distance(new Vector2(myGroundCheck.transform.position.x, myGroundCheck.transform.position.y), myGroundCheck.GroundHitResult.point) <= maxDistGroundBeforeVeloCorrection) {
-            isGroundedButFarFromGround = false;
-        } else {
-            isGroundedButFarFromGround = true;
-        }
     }
 
     private void UpdateHangCounter() {
@@ -169,8 +175,8 @@ public class F_PlayerController3 : MonoBehaviour
         canCheckGroundCounter -= Time.deltaTime;
 
         if(canCheckGroundCounter <= 0) {
-            canCheckGround = true;
-            canCheckGroundCounter = canCheckGroundMaxTime;
+            //canCheckGround = true;
+            //canCheckGroundCounter = canCheckGroundMaxTime;
         }
     }
 
@@ -223,7 +229,9 @@ public class F_PlayerController3 : MonoBehaviour
             canJump = false;
             isJumping = true;
             canCheckGround = false;
-            
+            myGroundCheck.CheckGroundEnabled = false;
+
+
             newVelocity.Set(rb.linearVelocity.x/ veloDividerWhenJumping, rb.linearVelocity.y/ veloDividerWhenJumping);
             rb.linearVelocity = newVelocity;
             newForce.Set(0.0f, jumpForce + rb.linearVelocity.magnitude * jumpForceMagnitudeMultiplier);
@@ -254,7 +262,7 @@ public class F_PlayerController3 : MonoBehaviour
     }
 
 
-
+    bool notMovingButTryingToWalk = false;
 
     private void ApplyMovement() {
 
@@ -271,17 +279,7 @@ public class F_PlayerController3 : MonoBehaviour
 
 
             currentmovementSpeed = Mathf.Clamp(currentmovementSpeed + Time.fixedDeltaTime * movementSeepAccel, 0, movementSpeed);
-
             _xVeloAddedWithInput = Mathf.Clamp(rb.linearVelocity.x + currentmovementSpeed * xInput, -_xMomentumAbs - currentmovementSpeed, _xMomentumAbs + currentmovementSpeed);
-
-            //_xVeloAddedWithInput = Mathf.Clamp(rb.linearVelocity.x + movementSpeed * xInput, -_xMomentumAbs - movementSpeed, _xMomentumAbs + movementSpeed);
-            /*
-            if(isJumping) {
-                _xVeloAddedWithInput = Mathf.Clamp(rb.linearVelocity.x + movementSpeed * xInput, -_xMomentumAbs - movementSpeed, _xMomentumAbs + movementSpeed);
-            } else {
-                _xVeloAddedWithInput = Mathf.Clamp(rb.linearVelocity.x + movementSpeed * xInput, -_xMomentumAbs - movementSpeed/2, _xMomentumAbs + movementSpeed/2);
-            }
-            */
 
             newVelocity.Set(_xVeloAddedWithInput, rb.linearVelocity.y);
             rb.linearVelocity = newVelocity;
@@ -300,36 +298,156 @@ public class F_PlayerController3 : MonoBehaviour
         if(myGroundCheck.IsGrounded && !isJumping) {
             currentmovementSpeed = movementSpeed;
 
-            newVelocity.Set(movementSpeed * myGroundCheck.WalkDirection.x * -xInput, movementSpeed * myGroundCheck.WalkDirection.y * -xInput);
+            if(xInput == 0) {
+                newVelocity = Vector2.zero;
+                rb.linearVelocity = newVelocity;
+                return;
+            }
+
+            //FIX STUCK IN HOLE
+            RaycastHit2D _chosenHit;
+
+            //si angle entre les deux resultat supérieur a 90 => on est dans un trou
+            bool _isInHole = Vector2.Angle(myGroundCheck.GroundHitResult.normal, myGroundCheck.GroundSecondHitResult.normal) >= 90 ? true : false;
+            
+            
+            //Debug.Log("DOT R1 = " + Vector2.Dot(myGroundCheck.GroundHitResult.normal,transform.right));
+            //Debug.Log("DOT R2 = " + Vector2.Dot(myGroundCheck.GroundSecondHitResult.normal,transform.right));
+
+
+            //si dans un trou et que le result1 provient du raycast back, on choisit le result2, sinon le result1
+            //si pas dans un trou on prends result1
+            Vector2 _directionRaycastOfFirstResult = (myGroundCheck.GroundHitResult.point - (Vector2) myGroundCheck.transform.position).normalized;
+
+            if(_isInHole) {
+                Debug.Log("DANS UN TROU ");
+                if(Vector2.Angle(_directionRaycastOfFirstResult, -transform.right) == 0) {
+                    _chosenHit = myGroundCheck.GroundSecondHitResult;
+                } else {
+                    _chosenHit = myGroundCheck.GroundHitResult;
+                }
+            } else {
+                _chosenHit = myGroundCheck.GroundHitResult;
+            }
+            //Vector2 _directionSecondResult = (myGroundCheck.GroundSecondHitResult.point - (Vector2) myGroundCheck.transform.position).normalized;
+            //Vector2 _originSecondResult = myGroundCheck.GroundSecondHitResult.point - myGroundCheck.GroundSecondHitResult.distance * _directionSecondResult;
+
+            /*
+            */
+
+
+
+            //REMETTRE ? NON normalement
+            /*
+            if(Vector2.Angle(myGroundCheck.GroundHitResult.normal, myGroundCheck.GroundSecondHitResult.normal) > 90) {
+                _chosenHit = myGroundCheck.GroundSecondHitResult;
+            } else {
+                _chosenHit = myGroundCheck.GroundHitResult;
+            }
+            */
+
+
+
+            /*
+            _chosenHit =
+                Vector2.SignedAngle(-transform.right, myGroundCheck.GroundHitResult.normal) < Vector2.SignedAngle(-transform.right, myGroundCheck.GroundSecondHitResult.normal) ?
+                myGroundCheck.GroundHitResult : myGroundCheck.GroundSecondHitResult;
+            */
+            /*
+            if(xInput != 0 && !isMoving) {
+
+                if(notMovingButTryingToWalk) { //STUCK, on choisit le second ground touché
+                    _chosenHit = myGroundCheck.GroundSecondHitResult;
+                    Debug.Log("STUCK SO SECOND CHOICE");
+                    notMovingButTryingToWalk = false;
+                } else {
+                    notMovingButTryingToWalk = true;
+                }
+                
+            } else if (xInput != 0 && isMoving || xInput == 0 && !isMoving) {
+                notMovingButTryingToWalk = false;
+            }
+            */
+
+            Vector2 _walkDirection = Vector2.Perpendicular(_chosenHit.normal).normalized;
+
+
+            newVelocity.Set(movementSpeed * _walkDirection.x * -xInput, movementSpeed * _walkDirection.y * -xInput);
             Debug.DrawRay(transform.position, newVelocity, Color.cyan);
 
             //FIX Décallage avec le sol          
-            if(isGroundedButFarFromGround) {
-                Vector2 _addedVeloToGround = -myGroundCheck.GroundHitResult.normal * movementSpeed;
-                newVelocity.Set(newVelocity.x + _addedVeloToGround.x, newVelocity.y + _addedVeloToGround.y);
-                Debug.DrawRay(transform.position, newVelocity, Color.black);
+            if(myGroundCheck.IsGroundedButFarFromGround) {
+             
+                Vector2 _veloToDown = Vector2.down * Mathf.Abs(xInput) * movementSpeed;
+                newVelocity = newVelocity + _veloToDown;
+                Debug.Log("FIX GROUND DECALAGE");
             }
 
-            //FIX SHARP ANGLE PROB TO STAY ON GROUND
+            /*
 
-            //A FAIRE DANS GROUNDCHECK ? ça devrait faire partie du calcul qui set WalkDirection ?
-            //OU BIEN Setter newVelocity directement dans GroundCheck ?.
-
-            Vector2 _checkPos = myGroundCheck.transform.position;
-            Vector2 _predictedPoint = new Vector2(_checkPos.x, _checkPos.y) + rb.linearVelocity * Time.deltaTime;
-            RaycastHit2D _secondVerticalhit = Physics2D.Raycast(_predictedPoint, Vector2.down, myGroundCheck.CheckedDistance * 10, myGroundCheck.GroundLayer);
-
-            if(_secondVerticalhit && Vector2.Angle(myGroundCheck.GroundHitResult.normal, _secondVerticalhit.normal) >= maxAngleBeforeVeloCorrection) {
-                //Debug.Log("FIX");
-                //newVelocity.Set(newVelocity.x, newVelocity.y - movementSpeed * Mathf.Abs(xInput));
+            //si dans un trou pas la correction d'apres
+            if(_isInHole) {
+                rb.linearVelocity = newVelocity;
+                return;
             }
 
+            //FIX SHARP ANGLE CHANGE PROB TO STAY ON GROUND
+            //=> marche pas trop mais trop galère
+
+            //TODO
+            //On sette un predicted point selon notre velocité
+            //On tire un raycast vers lui et de sa distance pour savoir si il est dans une collision
+            //Si dans une collision on arrête (ne change pas la newVelo)
+            //Sinon on tire un raycast depuis predicted point vers transform.right de la distance myGroundCheck.CheckedDistance
+            //Si on touche on touche on arrête (ne change pas la newVelo)
+            //Sinon on est dans le cas de décrochage predict => on vérifie dot et angle pour modifier newVelo ou non
+
+
+            predictedPoint = (Vector2) myGroundCheck.transform.position + newVelocity * Time.deltaTime;
+            RaycastHit2D _hitToPredictedPoint = Physics2D.Raycast(myGroundCheck.transform.position, newVelocity.normalized, predictedPoint.magnitude, myGroundCheck.GroundLayer);
+            //RaycastHit2D _hitToPredictedPoint = Physics2D.Raycast(myGroundCheck.transform.position,transform.right, myGroundCheck.GroundLayer);
+   
+
+
+            if(_hitToPredictedPoint) {
+                Debug.Log("predictedPoint IN Collider : NO FIX");
+            } else {
+                //on touche pas => soit y'a du vide après, soit y'a une autre pente
+                RaycastHit2D _secondVerticalhit = Physics2D.Raycast(predictedPoint, Vector2.down, myGroundCheck.CheckedDistance * 10, myGroundCheck.GroundLayer);
+
+                if(!_secondVerticalhit) {
+                    Debug.Log("VIDE APRES PENTE : NO FIX");
+                    //Debug.Log("DOT = " + Vector2.Dot(_chosenHit.normal, _secondVerticalhit.normal));
+                    //Debug.Log("ANGLE = " + Vector2.Angle(_chosenHit.normal, _secondVerticalhit.normal));
+                } else if(_secondVerticalhit && _chosenHit.normal != _secondVerticalhit.normal && Vector2.Dot(_chosenHit.normal, _secondVerticalhit.normal) <= 0 && Vector2.Angle(_chosenHit.normal, _secondVerticalhit.normal) <= 90) {//90 ou 180
+
+                        Debug.Log("FIX Decrochage predict"); // MARCHE MAL sur des angles de + 90
+                        Debug.Log("DOT = " + Vector2.Dot(_chosenHit.normal, _secondVerticalhit.normal));
+                        Debug.Log("ANGLE = " + Vector2.Angle(_chosenHit.normal, _secondVerticalhit.normal));
+
+                        //la vitesse ajoutée pour stick devrait dépendre de l'ampleur du décrochage = _secondVerticalhit.distance ?
+                        float _addedVeloToStickGround = movementSpeed * Mathf.Abs(xInput) * _secondVerticalhit.distance * movementSpeed;
+                        Debug.Log("_secondVerticalhit distance = " + _secondVerticalhit.distance);
+                        newVelocity.Set(newVelocity.x, newVelocity.y - _addedVeloToStickGround);
+                    //newVelocity.Set(newVelocity.x, newVelocity.y - movementSpeed * Mathf.Abs(xInput)); 
+                } else {
+                    Debug.Log("PENTE NON PRATIQUABLE APRES PENTE ou même pente : NO FIX");
+                }
+
+            }                  
+           */
+
+
+            //MOVE
             rb.linearVelocity = newVelocity;
+
             return;
         }
     }
 
  
+    Vector2 predictedPoint = new Vector2();
+
     private void UpdateAnimator() {
         myAnimator.SetFloat(SRAnimators.Animator_Hero1.Parameters.xVelocity, Mathf.Round(rb.linearVelocity.x));
         myAnimator.SetFloat(SRAnimators.Animator_Hero1.Parameters.yVelocity, Mathf.Round(rb.linearVelocity.y));
@@ -341,8 +459,11 @@ public class F_PlayerController3 : MonoBehaviour
 
 
     private void OnDrawGizmos() {
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(myGroundCheck.transform.position, maxDistGroundBeforeVeloCorrection);
+
+
+
+        //Gizmos.color = Color.magenta;
+        //Gizmos.DrawWireSphere(predictedPoint, 0.15f);
     }
        
 }

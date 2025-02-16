@@ -33,15 +33,29 @@ public sealed class SRResources {
         }
     }
     
+    public static global::TypeSafe.Resource<global::UnityEngine.Shader> Game2DWaterKit_RefractionMask {
+        get {
+            return ((global::TypeSafe.Resource<global::UnityEngine.Shader>)(@__ts_internal_resources[2]));
+        }
+    }
+    
+    public static global::TypeSafe.Resource<global::UnityEngine.Shader> Game2DWaterKit_MeshMask {
+        get {
+            return ((global::TypeSafe.Resource<global::UnityEngine.Shader>)(@__ts_internal_resources[3]));
+        }
+    }
+    
     public static global::TypeSafe.PrefabResource DebugUICanvas {
         get {
-            return ((global::TypeSafe.PrefabResource)(@__ts_internal_resources[2]));
+            return ((global::TypeSafe.PrefabResource)(@__ts_internal_resources[4]));
         }
     }
     
     private static global::System.Collections.Generic.IReadOnlyList<global::TypeSafe.IResource> @__ts_internal_resources = new global::TypeSafe.IResource[] {
             new global::TypeSafe.Resource<global::DG.Tweening.Core.DOTweenSettings>("DOTweenSettings", "DOTweenSettings"),
             new global::TypeSafe.PrefabResource("DebugUIPersistentCanvas", "DebugUIPersistentCanvas"),
+            new global::TypeSafe.Resource<global::UnityEngine.Shader>("Game2DWaterKit RefractionMask", "Game2DWaterKit RefractionMask"),
+            new global::TypeSafe.Resource<global::UnityEngine.Shader>("Game2DWaterKit MeshMask", "Game2DWaterKit MeshMask"),
             new global::TypeSafe.PrefabResource("DebugUICanvas", "DebugUICanvas")};
     
     /// <summary>

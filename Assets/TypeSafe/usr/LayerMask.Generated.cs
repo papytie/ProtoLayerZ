@@ -38,4 +38,6 @@ public sealed class SRLayerMask {
     public const int Ground = 64;
     
     public const int Spaceship = 128;
+    
+    public const int Player = 256;
 }

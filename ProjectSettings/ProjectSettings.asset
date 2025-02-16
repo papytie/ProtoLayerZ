@@ -575,23 +575,23 @@ PlayerSettings:
   webGLCloseOnQuit: 0
   webWasm2023: 0
   scriptingDefineSymbols:
-    Android: DOTWEEN
+    Android: DOTWEEN;GAME_2D_WATER_KIT_URP
     EmbeddedLinux: DOTWEEN
     GameCoreScarlett: DOTWEEN
     GameCoreXboxOne: DOTWEEN
     LinuxHeadlessSimulation: DOTWEEN
-    Nintendo Switch: DOTWEEN
-    PS4: DOTWEEN
-    PS5: DOTWEEN
+    Nintendo Switch: DOTWEEN;GAME_2D_WATER_KIT_URP
+    PS4: DOTWEEN;GAME_2D_WATER_KIT_URP
+    PS5: DOTWEEN;GAME_2D_WATER_KIT_URP
     QNX: DOTWEEN
     ReservedCFE: DOTWEEN
-    Standalone: DOTWEEN
+    Standalone: DOTWEEN;GAME_2D_WATER_KIT_URP
     VisionOS: DOTWEEN
-    WebGL: DOTWEEN
-    Windows Store Apps: DOTWEEN
-    XboxOne: DOTWEEN
-    iPhone: DOTWEEN
-    tvOS: DOTWEEN
+    WebGL: DOTWEEN;GAME_2D_WATER_KIT_URP
+    Windows Store Apps: DOTWEEN;GAME_2D_WATER_KIT_URP
+    XboxOne: DOTWEEN;GAME_2D_WATER_KIT_URP
+    iPhone: DOTWEEN;GAME_2D_WATER_KIT_URP
+    tvOS: DOTWEEN;GAME_2D_WATER_KIT_URP
   additionalCompilerArguments: {}
   platformArchitecture: {}
   scriptingBackend:
