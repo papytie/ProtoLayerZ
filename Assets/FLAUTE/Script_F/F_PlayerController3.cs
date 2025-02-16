@@ -30,6 +30,7 @@ public class F_PlayerController3 : MonoBehaviour
     [SerializeField] float movementSeepAccel = 2;
     [SerializeField] float canCheckGroundMaxTime = 0.2f;
     public float canCheckGroundCounter = 0;
+    private bool isInAirAndTouchingNonWalkableSlope = false;
 
 
     public float xInput;
@@ -65,6 +66,15 @@ public class F_PlayerController3 : MonoBehaviour
         if(!myGroundCheck.IsGrounded && canCheckGroundCounter <= 0 && ((1 << collision.gameObject.layer) & myGroundCheck.GroundLayer) != 0) {
             canCheckGround = true;
             canCheckGroundCounter = canCheckGroundMaxTime;
+
+            
+            Vector2 _closestContactPoint = collision.ClosestPoint(myGroundCheck.transform.position);
+            Vector2 _dir = (_closestContactPoint - (Vector2)myGroundCheck.transform.position).normalized;
+            RaycastHit2D _hit = Physics2D.Raycast(myGroundCheck.transform.position, _dir, myGroundCheck.CheckedDistance, myGroundCheck.GroundLayer);
+
+            if(_hit && Vector2.Angle(_hit.normal, Vector2.up)>= myGroundCheck.MaxGroundAngle) {
+                isInAirAndTouchingNonWalkableSlope = true;
+            }         
         }
 
 
@@ -108,6 +118,7 @@ public class F_PlayerController3 : MonoBehaviour
 
         if(myGroundCheck.IsGrounded) {
             xMomentum = 0;
+            isInAirAndTouchingNonWalkableSlope = false;
         } else {
             if(xMomentum == 0) {
                 xMomentum = rb.linearVelocity.x;
@@ -269,7 +280,8 @@ public class F_PlayerController3 : MonoBehaviour
  
 
         //AIR MOVEMENT
-        if(!myGroundCheck.IsGrounded) {
+        //si pas au sol et pas en contact d'une pente trop abrupte, mais l'angle ne doit pas non plus être égal a 0 (c
+        if(!myGroundCheck.IsGrounded && !isInAirAndTouchingNonWalkableSlope) {
 
             //le clamp min et max de la xVelo est relatif en %age à la velo de départ au moment où le joueur a décollé du sol
             //Set xMomentum 1 fois quand !isGrounded,    

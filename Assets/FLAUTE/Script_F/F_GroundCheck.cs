@@ -46,6 +46,7 @@ public class F_GroundCheck : MonoBehaviour
     public bool NoHitResult => noHitResult;
     public float CheckedDistance => rayLength;
     public float MaxGroundAngle => maxSlopeAngle;
+    public float CurrentSlopeAngle => currentSlopeAngle;
 
     public RaycastHit2D GroundHitResult => groundHitResult;
     public RaycastHit2D GroundSecondHitResult => groundSecondHitResult;
