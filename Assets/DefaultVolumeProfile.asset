@@ -12,26 +12,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 772ef47f3fce34346bbb42fb4f5434b8, type: 3}
   m_Name: PixelationVol
   m_EditorClassIdentifier: 
-  active: 0
+  active: 1
   m_Scale:
     m_OverrideState: 1
-    m_Value: 0.3
+    m_Value: 1
   m_Grid:
-    m_OverrideState: 0
+    m_OverrideState: 1
     m_Value: 1
   m_Roundness:
-    m_OverrideState: 0
+    m_OverrideState: 1
     m_Value: 0
   m_Color:
-    m_OverrideState: 0
-    m_Value: {r: 0.5990566, g: 0.4295123, b: 0.4295123, a: 1}
+    m_OverrideState: 1
+    m_Value: {r: 0, g: 0, b: 0, a: 0}
     hdr: 0
   m_Palette:
-    m_OverrideState: 0
-    m_Value: {fileID: 2800000, guid: dbd7f8172b85fcc48899d4469e1c04b7, type: 3}
+    m_OverrideState: 1
+    m_Value: {fileID: 0}
   m_Impact:
-    m_OverrideState: 0
-    m_Value: 1
+    m_OverrideState: 1
+    m_Value: 0
   m_Crisp:
     m_OverrideState: 1
     m_Value: 0
@@ -514,19 +514,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ccf1aba9553839d41ae37dd52e9ebcce, type: 3}
   m_Name: MotionBlur
   m_EditorClassIdentifier: 
-  active: 0
+  active: 1
   mode:
     m_OverrideState: 1
-    m_Value: 1
+    m_Value: 0
   quality:
     m_OverrideState: 1
-    m_Value: 2
+    m_Value: 0
   intensity:
     m_OverrideState: 1
-    m_Value: 1
+    m_Value: 0
   clamp:
     m_OverrideState: 1
-    m_Value: 0.2
+    m_Value: 0.05
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0

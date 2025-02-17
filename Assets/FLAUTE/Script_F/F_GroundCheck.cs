@@ -5,6 +5,7 @@ using UnityEngine;
 using System.Linq;
 using System;
 using UnityEngine.Windows;
+using static UnityEngine.Rendering.DebugUI;
 
 public class F_GroundCheck : MonoBehaviour
 {
@@ -27,7 +28,9 @@ public class F_GroundCheck : MonoBehaviour
     [SerializeField] float peakDownRayLength = 5;
     [SerializeField] float rayDirectionMaxSpread = 360;
     [SerializeField] float raySpreadGlobalOrientation = 0;
-    [SerializeField] int numberOfRay = 4;
+    int numberOfRay = 3;
+    [SerializeField] float minDist = 0.1f;
+    [SerializeField] float minFrontPointDistToDirectChoice = 0.5f;
 
     //DEBUG
     [SerializeField] List<float> allDistances = new List<float>();
@@ -95,22 +98,160 @@ public class F_GroundCheck : MonoBehaviour
 
 
     void CheckGround() {
-
+        
         UpdateResultListCount(numberOfRay);
 
         isGroundedButFarFromGround = isGrounded && !isGroundOverlaped ? true : false;
         if(isGroundedButFarFromGround) {
-            Debug.Log("isGrounded BUT FAR");
+            //Debug.Log("isGrounded BUT FAR");
+        }
+
+        
+
+        MultipleRaycastsAndDirections(numberOfRay);
+        allDistances.Clear();
+
+        // allResults[0] // front
+        // allResults[1] // down
+        // allResults[2] // back
+
+        List<int> touchingRaycastIDList = new List<int>(); 
+        
+        for(int i = 0; i < numberOfRay; i++) {
+            if(allResults[i] && Vector2.Angle(allResults[i].normal, Vector2.up) < maxSlopeAngle) {
+                touchingRaycastIDList.Add(i);
+            }
+        }
+
+        Debug.Log(touchingRaycastIDList.Count);
+
+        float _frontPointDist;
+        float _downPointDist;
+        float _backPointDist;
+
+
+        if(touchingRaycastIDList.Count == 0) {
+            //aucun touche
+            //ajouter le cas de peak
+
+            //si on est sur une peak, on caste beaucoup plus bas
+            if(isGroundOverlaped) {
+
+                RaycastHit2D _newCast = Physics2D.Raycast(raycastOrigin, Vector2.down, peakDownRayLength, whatIsGround);
+                // si ça touche et que l'angle est bon
+                if(_newCast && Vector2.Angle(_newCast.normal, Vector2.up) < maxSlopeAngle) {
+                    //on essaie d'aller vers le front
+                    //CAS SPECIAL
+
+                    //faire comme si on touchait un sol plat pour aller tout droit
+                    //RaycastHit2D _fakeHitResult = allResults[0];
+                    //_fakeHitResult.point = new Vector2(0, 0);
+                    //_fakeHitResult.normal = Vector2.up;
+                    allResults[0] = _newCast;
+                    SetIsGrounded(true, 0);
+                    return;
+                } else {
+                    SetIsGrounded(false, 0);
+                    return;
+                }
+
+            } else {
+                //0 useless quand grounded false, mais flemme de faire surcharge
+                SetIsGrounded(false, 0);
+                return;
+            }
+        } 
+        
+        if(touchingRaycastIDList.Count == 1) {
+            //ajouter le cas de peak
+            //si 1 seul touche, on le prends
+            SetIsGrounded(true, touchingRaycastIDList[0]);
+            return;
+        } 
+        
+        if(touchingRaycastIDList.Count == 2) {
+            if(touchingRaycastIDList.Contains(0) && touchingRaycastIDList.Contains(1)) {
+                //front et down touch
+                _frontPointDist = Vector2.Distance(allResults[0].point, transform.position);
+                _downPointDist = Vector2.Distance(allResults[1].point, transform.position);
+
+                //front prio grace a mindist
+                if(_frontPointDist - minDist < _downPointDist) {
+                    SetIsGrounded(true, 0);
+                    return;
+                } else {
+                    SetIsGrounded(true, 1);
+                    return;
+                }
+
+            } else if(touchingRaycastIDList.Contains(1) && touchingRaycastIDList.Contains(2)) {
+                //down et back touch
+
+                _downPointDist = Vector2.Distance(allResults[1].point, transform.position);
+                _backPointDist = Vector2.Distance(allResults[2].point, transform.position);
+
+                //down prio grace a mindist
+                if(_downPointDist - minDist < _backPointDist) {
+                    SetIsGrounded(true, 1);
+                    return;
+                } else {
+                    SetIsGrounded(true, 2);
+                    return;
+                }
+
+            } else {
+                //front et back touch
+                _frontPointDist = Vector2.Distance(allResults[0].point, transform.position);
+                _backPointDist = Vector2.Distance(allResults[2].point, transform.position);
+
+                //front prio grace a mindist
+                if(_frontPointDist - minDist < _backPointDist) {
+                    SetIsGrounded(true, 0);
+                    return;
+                } else {
+                    SetIsGrounded(true, 2);
+                    return;
+                }
+            }
+        } 
+        
+        if(touchingRaycastIDList.Count == 3) {
+            //si les 3 touche, on les compare tous en donnant prio au front
+            _frontPointDist = Vector2.Distance(allResults[0].point, transform.position);
+            _downPointDist = Vector2.Distance(allResults[1].point, transform.position);
+            _backPointDist = Vector2.Distance(allResults[2].point, transform.position);           
+
+            //front prio, puis down, puis back
+            if(_frontPointDist - minDist < _downPointDist && _frontPointDist - minDist < _backPointDist) {
+                SetIsGrounded(true, 0);
+                return;
+            } else if(_downPointDist - minDist < _backPointDist) {
+                SetIsGrounded(true, 1);
+                return;
+            } else {
+                SetIsGrounded(true, 2);
+                return;
+            }
         }
 
 
-        MultipleRaycastsAndDirections(numberOfRay);
+
+        Debug.Log("NNNNOOOOOOOONN j'ai zappé des cas");
 
 
-        allDistances.Clear();
-        
+
+
+
+
+
+
+
         //remove ceux qui ne touchent pas
         allResults.RemoveAll(result => result == false);
+        UpdateDistanceList();
+
+
+
 
 
         //////////// CASE 1 /////////////
@@ -163,87 +304,6 @@ public class F_GroundCheck : MonoBehaviour
 
         }
 
-        //BAD SOLUTION 1
-        /*
-
-        //On tire qu'un raycast plus long vers le bas 
-        if(allResults.Count == 0 && isGroundOverlaped) {
-
-            allResults.Clear();
-            allResults.Add(Physics2D.Raycast(raycastOrigin, Vector2.down, peakDownRayLength, whatIsGround));
-            Debug.DrawRay(raycastOrigin, Vector2.down * peakDownRayLength, Color.black);
-
-            // si ça touche et que l'angle est bon
-            if(allResults[0] && Vector2.Angle(allResults[0].normal, Vector2.up) < maxSlopeAngle) {
-                //on essaie d'aller vers le front
-                //CAS SPECIAL
-                isGrounded = true;
-                noHitResult = true;
-                groundHitResult = new RaycastHit2D();
-                groundSecondHitResult = new RaycastHit2D();
-                currentSlopeAngle = 0;
-                Debug.DrawRay(raycastOrigin, (Vector3) groundHitResult.point - raycastOrigin, Color.red);
-
-                //SetRaycastResults();
-                return;
-            } else {
-                //ça touche pas ou angle pas bon
-                isGrounded = false;
-                SetRaycastResults();
-                return;
-            }
-
-        }
-
-        */
-
-        //BAD SOLUTION 2
-        /*
-        ////on crée 2 raycasts en plus et  nouveau cycle de check
-        if(allResults.Count == 0  && isGroundOverlaped) {
-
-
-            //UpdateResultListCount(numberOfRay + 2);
-            //MultipleRaycastsAndDirections(numberOfRay + 2);
-
-            numberOfRay += 2;
-            UpdateResultListCount(numberOfRay);
-            MultipleRaycastsAndDirections(numberOfRay);
-
-            //remove ceux qui ne touchent pas AGAIN
-            allResults.RemoveAll(result => result == false);
-            //si toujours rien ne touche 
-            if(allResults.Count == 0) {
-                //on est en l'air
-                //NOOO CHOSEN ONE
-                isGrounded = false;
-                SetRaycastResults();
-                return;
-
-            } else {
-                //si cette fois on touche
-                //remove ceux qui n'ont pas un angle pratiquable AGAIN
-                allResults.RemoveAll(result => Vector2.Angle(result.normal, Vector2.up) >= maxSlopeAngle);
-                
-                //si il en reste au moins 1 on le choisit
-                if(allResults.Count > 0) {
-                    //DEBUG dist
-                    UpdateDistanceList();
-                    isGrounded = true;
-                    SetRaycastResults();
-                    return;
-                } else {
-                    //si aucun n'est praticable on est sur une mauvaise pente
-                    isGrounded = false;
-                    SetRaycastResults();
-                    numberOfRay = numberOfRayBase;
-                    return;
-                }
-            }
-        }
-
-        */
-
 
         //////////// CASE 3 /////////////
         //Au moins un résultat touche => soit on est sur une pente navigable soit non
@@ -260,13 +320,19 @@ public class F_GroundCheck : MonoBehaviour
         }
 
         //ici au moins une pente est navigable
-
+        /*
         //Organiser du plus près au plus éloigné
         allResults = allResults.OrderBy(result => result.distance).ToList();
         UpdateDistanceList();
 
-
+        //C'est tout, on garde les 3 résultats max trié du plus près au plus éloigné
+        isGrounded = true;
+        SetRaycastResults();
+        return;
+        */
+        /*
         //Si plusieurs Resultats avec pentes navigables Et les deux premières Equidistantes
+
         if(allDistances.Count > 1 && allDistances[0] == allDistances[1]) {
 
             //Si il y a plus d'éléments dans la liste on compare les suivants au premier elem et on arrête dès qu'ils ne sont plus équidistants
@@ -321,7 +387,9 @@ public class F_GroundCheck : MonoBehaviour
             isGrounded = false;
             SetRaycastResults();
             return;
-        }    
+        } 
+        
+        */
     }
 
 
@@ -334,9 +402,13 @@ public class F_GroundCheck : MonoBehaviour
     }
 
     void UpdateDistanceList() {
+        allDistances.Clear();
         for(int i = 0; i < allResults.Count; i++) {
             allDistances.Add(allResults[i].distance);
-            allDistances[i] = (float) System.Math.Round(allDistances[i], 3);
+            //allDistances[i] = (float) System.Math.Round(allDistances[i], 3);
+
+            // 100 = truncate to second decimal
+            //allDistances[i] = Mathf.Floor(allDistances[i] * 1000) / 1000;
         }
     }
 
@@ -358,6 +430,41 @@ public class F_GroundCheck : MonoBehaviour
         facingValue = controllerFacingValue;
     }
 
+    void SetIsGrounded(bool _isGrounded, int _index) {
+
+        isGrounded = _isGrounded;
+
+        if(isGrounded) {
+            noHitResult = false;
+            groundHitResult = allResults[_index];
+            Debug.DrawRay(raycastOrigin, (Vector3) groundHitResult.point - raycastOrigin, Color.red);
+            currentSlopeAngle = Vector2.Angle(groundHitResult.normal, Vector2.up);
+        } else {
+
+            //NOOO CHOSEN ONE
+            noHitResult = true;
+            currentSlopeAngle = 0;
+            groundHitResult = new RaycastHit2D();
+        }
+    }
+
+    private void SetRaycastResults() {
+
+
+        if(isGrounded) {
+            noHitResult = false;
+            groundHitResult = allResults[0];
+            Debug.DrawRay(raycastOrigin, (Vector3) groundHitResult.point - raycastOrigin, Color.red);
+            currentSlopeAngle = Vector2.Angle(groundHitResult.normal, Vector2.up);
+        } else {
+
+            //NOOO CHOSEN ONE
+            noHitResult = true;
+            currentSlopeAngle = 0;
+            groundHitResult = new RaycastHit2D();
+        }
+    }
+    /*
     private void SetRaycastResults() {
 
 
@@ -370,6 +477,7 @@ public class F_GroundCheck : MonoBehaviour
 
             //FOR STUCK In angle aigu hole, second result backup for player controller movement fix
             if(allResults.Count > 1) {
+           
                 groundSecondHitResult = allResults[1];
                 Debug.DrawRay(raycastOrigin, (Vector3) groundSecondHitResult.point - raycastOrigin, Color.yellow);
             } else {
@@ -386,7 +494,7 @@ public class F_GroundCheck : MonoBehaviour
         }     
     }
 
-
+    */
 
 
 

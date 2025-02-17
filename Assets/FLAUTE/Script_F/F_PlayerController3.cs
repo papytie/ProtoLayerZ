@@ -59,7 +59,9 @@ public class F_PlayerController3 : MonoBehaviour
     //TO DO : CHANGED BY LEVEL
     public float strateGravityScale = 9;
 
+    public float MovementSpeed => movementSpeed;
 
+    /*
     private void OnTriggerEnter2D(Collider2D collision) {
 
         //si on est dans les airs, que le délai canCheckGroundCounter est passé et qu'on trigger le sol, on peut check le sol
@@ -76,9 +78,25 @@ public class F_PlayerController3 : MonoBehaviour
                 isInAirAndTouchingNonWalkableSlope = true;
             }         
         }
-
-
     }
+    */
+    private void OnTriggerStay2D(Collider2D collision) {
+        //si on est dans les airs, que le délai canCheckGroundCounter est passé et qu'on trigger le sol, on peut check le sol
+        if(!myGroundCheck.IsGrounded && canCheckGroundCounter <= 0 && ((1 << collision.gameObject.layer) & myGroundCheck.GroundLayer) != 0) {
+            canCheckGround = true;
+            canCheckGroundCounter = canCheckGroundMaxTime;
+
+
+            Vector2 _closestContactPoint = collision.ClosestPoint(myGroundCheck.transform.position);
+            Vector2 _dir = (_closestContactPoint - (Vector2) myGroundCheck.transform.position).normalized;
+            RaycastHit2D _hit = Physics2D.Raycast(myGroundCheck.transform.position, _dir, myGroundCheck.CheckedDistance, myGroundCheck.GroundLayer);
+
+            if(_hit && Vector2.Angle(_hit.normal, Vector2.up) >= myGroundCheck.MaxGroundAngle) {
+                isInAirAndTouchingNonWalkableSlope = true;
+            }
+        }
+    }
+
 
     private void Awake() {
         controls = new Controls();
@@ -207,7 +225,13 @@ public class F_PlayerController3 : MonoBehaviour
         if( slideInput !=0 && myGroundCheck.IsGrounded) { 
             isSliding = true;
         } else {
-            isSliding = false; 
+
+            if(isSliding) {
+                slideVelo = rb.linearVelocity;
+            }
+
+            isSliding = false;
+            
         }
     }
 
@@ -265,7 +289,7 @@ public class F_PlayerController3 : MonoBehaviour
     }
 
     private void SwitchPhysicMaterial() {
-        if(myGroundCheck.IsGrounded && xInput == 0 && !isSliding) {
+        if(myGroundCheck.IsGrounded&& !isSliding && xInput == 0 && slideVeloMagnitude ==0) {
             rb.sharedMaterial = maxFriction;
         } else {
             rb.sharedMaterial = minFriction;
@@ -273,11 +297,22 @@ public class F_PlayerController3 : MonoBehaviour
     }
 
 
-    bool notMovingButTryingToWalk = false;
 
+    [SerializeField] Vector2 slideVelo = Vector2.zero;
+    [SerializeField] float slideVeloMagnitude = 0;
+    [SerializeField] float decelerationAfterSliding = 10;
+    [SerializeField] float slideVeloDivider = 2;
+    [SerializeField] float slideVeloOffset = 0.1f;
+    [SerializeField] float correctionSpeed;
     private void ApplyMovement() {
 
- 
+        slideVeloMagnitude = slideVelo.magnitude;
+        //reduction du la slide velo
+        if(slideVelo.magnitude - slideVeloOffset > 0 && myGroundCheck.IsGrounded && !isSliding) {
+            slideVelo /= slideVeloDivider;
+        } else {
+            slideVelo = Vector2.zero;
+        }
 
         //AIR MOVEMENT
         //si pas au sol et pas en contact d'une pente trop abrupte, mais l'angle ne doit pas non plus être égal a 0 (c
@@ -310,76 +345,12 @@ public class F_PlayerController3 : MonoBehaviour
         if(myGroundCheck.IsGrounded && !isJumping) {
             currentmovementSpeed = movementSpeed;
 
-            if(xInput == 0) {
-                newVelocity = Vector2.zero;
-                rb.linearVelocity = newVelocity;
-                return;
-            }
+       
 
             //FIX STUCK IN HOLE
             RaycastHit2D _chosenHit;
-
-            //si angle entre les deux resultat supérieur a 90 => on est dans un trou
-            bool _isInHole = Vector2.Angle(myGroundCheck.GroundHitResult.normal, myGroundCheck.GroundSecondHitResult.normal) >= 90 ? true : false;
-            
-            
-            //Debug.Log("DOT R1 = " + Vector2.Dot(myGroundCheck.GroundHitResult.normal,transform.right));
-            //Debug.Log("DOT R2 = " + Vector2.Dot(myGroundCheck.GroundSecondHitResult.normal,transform.right));
-
-
-            //si dans un trou et que le result1 provient du raycast back, on choisit le result2, sinon le result1
-            //si pas dans un trou on prends result1
-            Vector2 _directionRaycastOfFirstResult = (myGroundCheck.GroundHitResult.point - (Vector2) myGroundCheck.transform.position).normalized;
-
-            if(_isInHole) {
-                Debug.Log("DANS UN TROU ");
-                if(Vector2.Angle(_directionRaycastOfFirstResult, -transform.right) == 0) {
-                    _chosenHit = myGroundCheck.GroundSecondHitResult;
-                } else {
-                    _chosenHit = myGroundCheck.GroundHitResult;
-                }
-            } else {
-                _chosenHit = myGroundCheck.GroundHitResult;
-            }
-            //Vector2 _directionSecondResult = (myGroundCheck.GroundSecondHitResult.point - (Vector2) myGroundCheck.transform.position).normalized;
-            //Vector2 _originSecondResult = myGroundCheck.GroundSecondHitResult.point - myGroundCheck.GroundSecondHitResult.distance * _directionSecondResult;
-
-            /*
-            */
-
-
-
-            //REMETTRE ? NON normalement
-            /*
-            if(Vector2.Angle(myGroundCheck.GroundHitResult.normal, myGroundCheck.GroundSecondHitResult.normal) > 90) {
-                _chosenHit = myGroundCheck.GroundSecondHitResult;
-            } else {
-                _chosenHit = myGroundCheck.GroundHitResult;
-            }
-            */
-
-
-
-            /*
-            _chosenHit =
-                Vector2.SignedAngle(-transform.right, myGroundCheck.GroundHitResult.normal) < Vector2.SignedAngle(-transform.right, myGroundCheck.GroundSecondHitResult.normal) ?
-                myGroundCheck.GroundHitResult : myGroundCheck.GroundSecondHitResult;
-            */
-            /*
-            if(xInput != 0 && !isMoving) {
-
-                if(notMovingButTryingToWalk) { //STUCK, on choisit le second ground touché
-                    _chosenHit = myGroundCheck.GroundSecondHitResult;
-                    Debug.Log("STUCK SO SECOND CHOICE");
-                    notMovingButTryingToWalk = false;
-                } else {
-                    notMovingButTryingToWalk = true;
-                }
-                
-            } else if (xInput != 0 && isMoving || xInput == 0 && !isMoving) {
-                notMovingButTryingToWalk = false;
-            }
-            */
+            _chosenHit = myGroundCheck.GroundHitResult;
+      
 
             Vector2 _walkDirection = Vector2.Perpendicular(_chosenHit.normal).normalized;
 
@@ -389,10 +360,14 @@ public class F_PlayerController3 : MonoBehaviour
 
             //FIX Décallage avec le sol          
             if(myGroundCheck.IsGroundedButFarFromGround) {
-             
-                Vector2 _veloToDown = Vector2.down * Mathf.Abs(xInput) * movementSpeed;
+
+                float _xInputMinForced = Mathf.Abs(xInput) >= 01f ? Mathf.Abs(xInput) : 0.1f;
+
+
+                //Vector2 _veloToDown = Vector2.down * correctionSpeed; //* _xInputMinForced;
+                Vector2 _veloToDown = Vector2.down * rb.linearVelocity.magnitude; //* _xInputMinForced;
                 newVelocity = newVelocity + _veloToDown;
-                Debug.Log("FIX GROUND DECALAGE");
+                //Debug.Log("FIX GROUND DECALAGE");
             }
 
             /*
@@ -451,6 +426,7 @@ public class F_PlayerController3 : MonoBehaviour
 
 
             //MOVE
+            newVelocity += slideVelo;
             rb.linearVelocity = newVelocity;
 
             return;
@@ -458,7 +434,7 @@ public class F_PlayerController3 : MonoBehaviour
     }
 
  
-    Vector2 predictedPoint = new Vector2();
+    //Vector2 predictedPoint = new Vector2();
 
     private void UpdateAnimator() {
         myAnimator.SetFloat(SRAnimators.Animator_Hero1.Parameters.xVelocity, Mathf.Round(rb.linearVelocity.x));
@@ -472,10 +448,10 @@ public class F_PlayerController3 : MonoBehaviour
 
     private void OnDrawGizmos() {
 
+        Gizmos.color = Color.magenta;
+        Gizmos.DrawRay(transform.position, slideVelo);
 
 
-        //Gizmos.color = Color.magenta;
-        //Gizmos.DrawWireSphere(predictedPoint, 0.15f);
     }
        
 }

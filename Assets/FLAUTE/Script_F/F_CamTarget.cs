@@ -21,15 +21,21 @@ public class F_CamTarget : MonoBehaviour
 
     private void MoveCamTarget() {
 
+        float _addedAmountWithVelo = playerController.rb.linearVelocity.magnitude * Time.deltaTime;
+        _addedAmountWithVelo *= aheadAmount*20;
+
         //ajouter une condition si le player est trop éloigné (parce que si on bouge doucement on peut sortir de l'écran)
         if(Mathf.Abs(playerController.xInput) >= 0.2f || playerController.isSliding || playerController.myGroundCheck.IsGrounded == false) {
             Vector3 _veloNormalized = playerController.rb.linearVelocity.normalized;
-            destinationPos = playerController.transform.position + new Vector3(aheadAmount * _veloNormalized.x, aheadAmount / 2 * _veloNormalized.y, 0);
-            //destinationPos += transform.position;
+
+            float _modifiedAmount = aheadAmount + _addedAmountWithVelo;          
+            destinationPos = playerController.transform.position + new Vector3(_modifiedAmount * _veloNormalized.x, _modifiedAmount / 2 * _veloNormalized.y, 0);
         }
 
-        transform.position = Vector3.Lerp(transform.position, destinationPos, aheadSpeed * Time.deltaTime);
-       // transform.position += playerController.transform.position;
+        float _addedAheadSpeedWithVelo = playerController.rb.linearVelocity.magnitude * Time.deltaTime;
+        _addedAheadSpeedWithVelo /= aheadSpeed*100;
+        float _speed = aheadSpeed * Time.deltaTime ;
+        transform.position = Vector3.Lerp(transform.position, destinationPos, _speed + _addedAheadSpeedWithVelo);
     }
 
     private void OnDrawGizmos() {
