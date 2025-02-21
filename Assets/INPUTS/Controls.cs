@@ -117,6 +117,15 @@ public partial class @Controls: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Rocket"",
+                    ""type"": ""Value"",
+                    ""id"": ""b9291b8f-f6df-4318-b87b-3d412677716e"",
+                    ""expectedControlType"": ""Axis"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
                 }
             ],
             ""bindings"": [
@@ -167,7 +176,7 @@ public partial class @Controls: IInputActionCollection2, IDisposable
                 {
                     ""name"": ""negative"",
                     ""id"": ""cc1d0f20-05c7-4d43-b577-29322d5f3efc"",
-                    ""path"": ""<Keyboard>/leftArrow"",
+                    ""path"": ""<Keyboard>/a"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -178,7 +187,7 @@ public partial class @Controls: IInputActionCollection2, IDisposable
                 {
                     ""name"": ""positive"",
                     ""id"": ""187093c5-8a0f-4955-8da5-87282a88409d"",
-                    ""path"": ""<Keyboard>/rightArrow"",
+                    ""path"": ""<Keyboard>/d"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -229,6 +238,72 @@ public partial class @Controls: IInputActionCollection2, IDisposable
                     ""action"": ""Sliding"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""1D Axis"",
+                    ""id"": ""10e2e5ce-9e75-4eaf-8db4-0cadef5b2660"",
+                    ""path"": ""1DAxis"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Rocket"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""negative"",
+                    ""id"": ""535ad407-1cf9-4cf3-83d2-4b7af9e8ba88"",
+                    ""path"": ""<Gamepad>/leftTrigger"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Rocket"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""positive"",
+                    ""id"": ""c23d067a-853c-40f8-a841-7f5bb071ff9e"",
+                    ""path"": ""<Gamepad>/rightTrigger"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Rocket"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""1D Axis"",
+                    ""id"": ""19d8c678-32df-43fd-a63e-fd23aa6efff4"",
+                    ""path"": ""1DAxis"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Rocket"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""negative"",
+                    ""id"": ""a92f5474-0755-4dcd-979f-080297dfa709"",
+                    ""path"": ""<Keyboard>/s"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Rocket"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""positive"",
+                    ""id"": ""7ec57994-2a85-4a18-838b-d6f8b26bc13c"",
+                    ""path"": ""<Keyboard>/w"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Rocket"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
                 }
             ]
         }
@@ -240,6 +315,7 @@ public partial class @Controls: IInputActionCollection2, IDisposable
         m_MainCharacterMap_Walking = m_MainCharacterMap.FindAction("Walking", throwIfNotFound: true);
         m_MainCharacterMap_Jumping = m_MainCharacterMap.FindAction("Jumping", throwIfNotFound: true);
         m_MainCharacterMap_Sliding = m_MainCharacterMap.FindAction("Sliding", throwIfNotFound: true);
+        m_MainCharacterMap_Rocket = m_MainCharacterMap.FindAction("Rocket", throwIfNotFound: true);
     }
 
     ~@Controls()
@@ -323,6 +399,7 @@ public partial class @Controls: IInputActionCollection2, IDisposable
     private readonly InputAction m_MainCharacterMap_Walking;
     private readonly InputAction m_MainCharacterMap_Jumping;
     private readonly InputAction m_MainCharacterMap_Sliding;
+    private readonly InputAction m_MainCharacterMap_Rocket;
     /// <summary>
     /// Provides access to input actions defined in input action map "MainCharacterMap".
     /// </summary>
@@ -346,6 +423,10 @@ public partial class @Controls: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "MainCharacterMap/Sliding".
         /// </summary>
         public InputAction @Sliding => m_Wrapper.m_MainCharacterMap_Sliding;
+        /// <summary>
+        /// Provides access to the underlying input action "MainCharacterMap/Rocket".
+        /// </summary>
+        public InputAction @Rocket => m_Wrapper.m_MainCharacterMap_Rocket;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -381,6 +462,9 @@ public partial class @Controls: IInputActionCollection2, IDisposable
             @Sliding.started += instance.OnSliding;
             @Sliding.performed += instance.OnSliding;
             @Sliding.canceled += instance.OnSliding;
+            @Rocket.started += instance.OnRocket;
+            @Rocket.performed += instance.OnRocket;
+            @Rocket.canceled += instance.OnRocket;
         }
 
         /// <summary>
@@ -401,6 +485,9 @@ public partial class @Controls: IInputActionCollection2, IDisposable
             @Sliding.started -= instance.OnSliding;
             @Sliding.performed -= instance.OnSliding;
             @Sliding.canceled -= instance.OnSliding;
+            @Rocket.started -= instance.OnRocket;
+            @Rocket.performed -= instance.OnRocket;
+            @Rocket.canceled -= instance.OnRocket;
         }
 
         /// <summary>
@@ -462,5 +549,12 @@ public partial class @Controls: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnSliding(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Rocket" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnRocket(InputAction.CallbackContext context);
     }
 }

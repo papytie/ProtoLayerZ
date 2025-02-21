@@ -42,7 +42,7 @@ MonoBehaviour:
     probeVolumeBlendStatesCS: {fileID: 0}
   m_RendererFeatures:
   - {fileID: -872337669983995799}
-  m_RendererFeatureMap: 0000000000000000697869d082d5e4f3
+  m_RendererFeatureMap: 00000000000000008953a71c11a78fe6
   m_UseNativeRenderPass: 0
   m_TransparencySortMode: 3
   m_TransparencySortAxis: {x: 0, y: 0, z: 1}

@@ -30,7 +30,7 @@ public class F_GroundCheck : MonoBehaviour
     [SerializeField] float raySpreadGlobalOrientation = 0;
     int numberOfRay = 3;
     [SerializeField] float minDist = 0.1f;
-    [SerializeField] float minFrontPointDistToDirectChoice = 0.5f;
+    //[SerializeField] float minFrontPointDistToDirectChoice = 0.5f;
 
     //DEBUG
     [SerializeField] List<float> allDistances = new List<float>();
@@ -123,19 +123,30 @@ public class F_GroundCheck : MonoBehaviour
             }
         }
 
-        Debug.Log(touchingRaycastIDList.Count);
-
         float _frontPointDist;
         float _downPointDist;
         float _backPointDist;
 
-
+        //A FIX : on peut grimper sur des mauvaises penter grace au long raycast vers le bas qui touche un sol plat 
         if(touchingRaycastIDList.Count == 0) {
+            Debug.Log("COUNT 0");
             //aucun touche
             //ajouter le cas de peak
 
             //si on est sur une peak, on caste beaucoup plus bas
             if(isGroundOverlaped) {
+                Debug.Log("GROUND OVERLAP");
+                //pour bien faire il faudrait séparer les cas de grimpe et de descencte
+                //comment savoir si on grimpe ? SignedAngle front et ground raycasté loin vers le bas ? 
+
+                //si grimpe => un raycast qui origin bout de la capsule collider, direction front, lenght capsule radius
+                //  si hit + angle est bon on prends ce result
+                //  sinon     //faire comme si on touchait un sol plat pour aller tout droit
+                //RaycastHit2D _fakeHitResult = allResults[0];
+                //_fakeHitResult.point = new Vector2(0, 0);
+                //_fakeHitResult.normal = Vector2.up;
+
+                //si descent => => un raycast qui origin bout de la capsule collider, direction back, lenght capsule radius
 
                 RaycastHit2D _newCast = Physics2D.Raycast(raycastOrigin, Vector2.down, peakDownRayLength, whatIsGround);
                 // si ça touche et que l'angle est bon
@@ -143,25 +154,33 @@ public class F_GroundCheck : MonoBehaviour
                     //on essaie d'aller vers le front
                     //CAS SPECIAL
 
-                    //faire comme si on touchait un sol plat pour aller tout droit
-                    //RaycastHit2D _fakeHitResult = allResults[0];
-                    //_fakeHitResult.point = new Vector2(0, 0);
-                    //_fakeHitResult.normal = Vector2.up;
+                
+                    
+                    
+                    
                     allResults[0] = _newCast;
                     SetIsGrounded(true, 0);
+                    Debug.Log("ANGLE OK");
                     return;
                 } else {
                     SetIsGrounded(false, 0);
+                    Debug.Log("ANGLE NOPE");
                     return;
                 }
 
             } else {
+                Debug.Log("GROUND PAS OVERLAP");
                 //0 useless quand grounded false, mais flemme de faire surcharge
                 SetIsGrounded(false, 0);
                 return;
             }
         } 
-        
+        /*
+        if(touchingRaycastIDList.Count == 0) {
+            SetIsGrounded(false, 0);
+            return;
+        }
+        */
         if(touchingRaycastIDList.Count == 1) {
             //ajouter le cas de peak
             //si 1 seul touche, on le prends
@@ -498,7 +517,7 @@ public class F_GroundCheck : MonoBehaviour
 
 
 
-    Vector2 RotateVector(Vector2 v, float angleDegrees) {
+    public Vector2 RotateVector(Vector2 v, float angleDegrees) {
         float angleRadians = angleDegrees * Mathf.Deg2Rad; // Convert degrees to radians
         float cos = Mathf.Cos(angleRadians);
         float sin = Mathf.Sin(angleRadians);
