@@ -258,7 +258,7 @@ public class F_PlayerController4 : MonoBehaviour
         ///// isStillControledByPhysic ////
         if(isPhysicMovementActivated) {
             isStillControledByPhysic = true;
-        }else if(!isPhysicMovementActivated && rb.linearVelocity.magnitude <= outOfPhysicMagnitudeThreshold) {
+        }else if((!isPhysicMovementActivated && rb.linearVelocity.magnitude <= outOfPhysicMagnitudeThreshold) || isJetpackActivated) { //mettre un compteur de jetpack a dépasser pour désactiver la physic
             isStillControledByPhysic = false;
         }
 
