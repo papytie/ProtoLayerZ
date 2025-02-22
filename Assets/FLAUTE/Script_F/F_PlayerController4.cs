@@ -20,6 +20,7 @@ public class F_PlayerController4 : MonoBehaviour
     public ParticleSystem jetpackParticles;
 
     [SerializeField] private float movementForce =8;
+    [SerializeField] private float airDirectControlForce = 8;
     [SerializeField] private float airControlForce = 5;
     [SerializeField] private float slideControlForce = 5;
     [SerializeField] private float jumpForce = 20;
@@ -80,6 +81,8 @@ public class F_PlayerController4 : MonoBehaviour
     public float strateGravityScale = 9;
     //strateFriction, 0 means no friction, 1 means full friction
     [SerializeField] float strateFrictionNorm = 1;
+    [SerializeField] float minLinearDamping = 0;
+    [SerializeField] float maxLinearDamping = 0;
     public float MovementSpeed => movementForce;
     public Vector2 inertiaVelo;
 
@@ -172,6 +175,7 @@ public class F_PlayerController4 : MonoBehaviour
         UpdatePhysicParams();
         
         ApplyMovement();
+
         UpdateVisual();
     }
 
@@ -245,7 +249,7 @@ public class F_PlayerController4 : MonoBehaviour
 
 
         ////// //isControledByPhysic ////
-        if(physicInput != 0 || rocketInput !=0) {
+        if(physicInput != 0 && myGroundCheck.IsGrounded ) { //|| (rocketInput !=0)
             isPhysicMovementActivated = true;
         } else {
             isPhysicMovementActivated = false;
@@ -293,8 +297,8 @@ public class F_PlayerController4 : MonoBehaviour
             tryToJump = false;
 
             //simplifiable
-            newVelocity.Set(rb.linearVelocity.x/ veloDividerWhenJumping, rb.linearVelocity.y/ veloDividerWhenJumping);
-            rb.linearVelocity = newVelocity;
+            //newVelocity.Set(rb.linearVelocity.x/ veloDividerWhenJumping, rb.linearVelocity.y/ veloDividerWhenJumping);
+            //rb.linearVelocity = newVelocity;
 
             //changer la direction du jump selon le cas
             Vector2 _jumpDirection;
@@ -315,7 +319,7 @@ public class F_PlayerController4 : MonoBehaviour
             newForce = _jumpDirection * (jumpForce + rb.linearVelocity.magnitude * jumpForceMagnitudeMultiplier);
             
             rb.AddForce(newForce, ForceMode2D.Impulse);
-            newVelocity = rb.linearVelocity;
+            //newVelocity = rb.linearVelocity;
 
 
             //Debug.Log("JUMP newVelocity = " + newVelocity);
@@ -341,14 +345,16 @@ public class F_PlayerController4 : MonoBehaviour
 
         //LINEAR DAMPING
         if(isPhysicMovementActivated && myGroundCheck.IsGrounded) {
-            rb.linearDamping = 0;
+            rb.linearDamping = minLinearDamping;
         } else {
-            rb.linearDamping = 1;
+            rb.linearDamping = maxLinearDamping;
         }
     }
 
-
-
+    public bool alreadySavedThisFrame = false;
+    public float velocityXPreviousFrame;
+    public bool canUpdateDeltaV;
+    public float deltaV = 0;
     private void ApplyMovement() {
 
 
@@ -376,15 +382,29 @@ public class F_PlayerController4 : MonoBehaviour
         }
 
 
-        //si on clique une fois sur physicInput on perds le jump movement et on passe dans ONLY PHYSIC MOVEMENT jusqu'a toucher le sol ou jetpack
-        //si on clique sur Jump alors qu'on ait dans les airs sans avoir sauté avant, on active isJumping
-        //il faudrait qu'après un saut
-        //JUMP MOVEMENT
-        if(!myGroundCheck.IsGrounded && !isStillControledByPhysic) {
-            Debug.Log("JUMP CONTROL MOOV");
 
-            newVelocity.Set(movementForce * xInput, rb.linearVelocity.y);
-            rb.linearVelocity = newVelocity;
+        //MIXED PHYSIC AND DIRECT CONTROL
+
+        //AERIAL X MOVEMENT
+        if(!myGroundCheck.IsGrounded) {
+            
+
+            if(Mathf.Abs(rb.linearVelocity.x) <= airDirectControlForce * Mathf.Abs(xInput) && !isJetpackActivated) { // !isJetPackActivated enlevable selon préférence
+                Debug.Log("direct control");
+
+
+                float _forceToAddWithInput = airDirectControlForce * xInput;
+
+                newVelocity.Set(_forceToAddWithInput, rb.linearVelocity.y);
+                rb.linearVelocity = newVelocity;
+            } else {
+
+                Debug.Log("physic Control");
+                float _forceFactor = Mathf.Abs(rb.linearVelocity.x);
+                float _forceToAdd = xInput * airControlForce / (1f + Mathf.Log(_forceFactor + 1f));                                                                                      //Debug.Log("AIR _addedForce = " + _forceToAdd);
+                rb.AddForceX(_forceToAdd, ForceMode2D.Force);
+            }
+
         }
 
 
@@ -411,27 +431,13 @@ public class F_PlayerController4 : MonoBehaviour
             rb.AddForce(_veloToAdd, ForceMode2D.Force);
         }
 
-        /*
-        */
-        //AIR MOVEMENT 
-        if(isStillControledByPhysic && !myGroundCheck.IsGrounded) {
-
-            Debug.Log("AIR MOOV");
-  
-            // Calculate the force to apply based on current velocity with logarithmic scaling
-            float _forceFactor = Mathf.Abs(rb.linearVelocity.x);
-            float _forceToAdd = xInput * airControlForce / (1f + Mathf.Log(_forceFactor + 1f)); // Logarithmic scaling
-            //Debug.Log("AIR _addedForce = " + _forceToAdd);
-            rb.AddForceX(_forceToAdd, ForceMode2D.Force);
-
-        }
-
+    
         //JETPACK MOVEMENT
         if(isJetpackActivated) {
 
             Debug.Log("JET MOOV");
             float _forceFactor = Mathf.Abs(rb.linearVelocity.y);
-            float _forceToAdd = rocketInput * jetpackForce / (1f + Mathf.Log(_forceFactor + 1f)); // Logarithmic scaling
+            float _forceToAdd = jetpackForce / (1f + Mathf.Log(_forceFactor + 1f)); // ajouter rocketInput* pour pouvoir faire le jetpack vers le bas
             //Debug.Log("JET _addedForce = " + _forceToAdd);
             rb.AddForceY(_forceToAdd, ForceMode2D.Force);
         }
