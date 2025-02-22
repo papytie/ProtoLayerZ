@@ -6825,7 +6825,7 @@ MonoBehaviour:
   shortRaycastOrigin: {x: 0, y: 0, z: 0}
   shortRaycastLength: 0.3
   raycastOriginOffset: 0
-  maxSlopeAngle: 90
+  maxSlopeAngle: 61
   circleOverlapRadius: 0.4
   isGrounded: 0
   isGroundOverlaped: 0
@@ -11430,7 +11430,7 @@ Transform:
   m_GameObject: {fileID: 1428303993}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 78.41, y: 62.4, z: -20}
+  m_LocalPosition: {x: 64.97, y: 62.4, z: -20}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -15673,7 +15673,7 @@ Transform:
   m_GameObject: {fileID: 1832764505}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 78.41, y: 62.4, z: -20}
+  m_LocalPosition: {x: 64.97, y: 62.4, z: -20}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -22158,7 +22158,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7878350319992209165, guid: 47538fb41707b8840b5dcd3a5cc1d977, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 78.41
+      value: 64.97
       objectReference: {fileID: 0}
     - target: {fileID: 7878350319992209165, guid: 47538fb41707b8840b5dcd3a5cc1d977, type: 3}
       propertyPath: m_LocalPosition.y

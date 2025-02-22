@@ -225,12 +225,15 @@ public class F_GroundCheck : MonoBehaviour
                     _frontPointDist = Vector2.Distance(allResults[0].point, transform.position);
                     //si front plus près que down, on va vers le bas
                     if(_frontPointDist < _downPointDist - minDist) {
+                        /*
+                        */
                         RaycastHit2D _fakeHitResult = allResults[0];
                         _fakeHitResult.point = new Vector2(0, 0);
                         _fakeHitResult.normal = controller.transform.right;
                         allResults[0] = _fakeHitResult;
                         SetIsGrounded(true, 0);
                         Debug.Log("SPECIAL CASE BAD ANGLE = FRONT");
+                        //SetIsGrounded(false, 0);
                         return;
                     } else {
                         SetIsGrounded(true, touchingGoodAngleRaycastIDList[0]);
@@ -249,6 +252,9 @@ public class F_GroundCheck : MonoBehaviour
                         allResults[0] = _fakeHitResult;
                         SetIsGrounded(true, 0);
                         Debug.Log("SPECIAL CASE BAD ANGLE = BACK");
+                        /*
+                        */
+                        //SetIsGrounded(false, 0);
                         return;
                     } else {
                         SetIsGrounded(true, touchingGoodAngleRaycastIDList[0]);

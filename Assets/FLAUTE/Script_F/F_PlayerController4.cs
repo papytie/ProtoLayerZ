@@ -390,13 +390,23 @@ public class F_PlayerController4 : MonoBehaviour
             
 
             if(Mathf.Abs(rb.linearVelocity.x) <= airDirectControlForce * Mathf.Abs(xInput) && !isJetpackActivated) { // !isJetPackActivated enlevable selon préférence
-                //Debug.Log("direct control");
+                Debug.Log("direct control");
 
 
                 float _forceToAddWithInput = airDirectControlForce * xInput;
 
-                newVelocity.Set(_forceToAddWithInput, rb.linearVelocity.y);
-                rb.linearVelocity = newVelocity;
+                //fix grimper sur des pentes non praticable juste avec ce mouvement
+                RaycastHit2D _castFront = Physics2D.Raycast(myGroundCheck.transform.position, transform.right, 0.6f, myGroundCheck.GroundLayer);
+                Debug.DrawRay(myGroundCheck.transform.position, transform.right * 0.6f, Color.gray);
+                if(_castFront && Vector2.Angle(_castFront.normal, Vector2.up) > myGroundCheck.MaxGroundAngle) {
+                    //fix, on est en train d'essayer de grimper une mauvaise pente => pas de mouvement
+                    Debug.Log("FIX BAD ANGLE");
+                } else {
+                    //mouvement normal
+                    newVelocity.Set(_forceToAddWithInput, rb.linearVelocity.y);
+                    rb.linearVelocity = newVelocity;
+                }
+                
             } else {
 
                 //Debug.Log("physic Control");
