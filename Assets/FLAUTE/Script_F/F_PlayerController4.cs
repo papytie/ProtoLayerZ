@@ -372,7 +372,7 @@ public class F_PlayerController4 : MonoBehaviour
             if(myGroundCheck.IsGroundedButFarFromGround) {
                 Vector2 _veloToDown = Vector2.down * (rb.linearVelocity.magnitude + 1);
                 newVelocity = newVelocity + _veloToDown;
-                Debug.Log("FIX GROUND DECALAGE");
+                //Debug.Log("FIX GROUND DECALAGE");
             }
 
             //APPLY VELOCITY
@@ -390,7 +390,7 @@ public class F_PlayerController4 : MonoBehaviour
             
 
             if(Mathf.Abs(rb.linearVelocity.x) <= airDirectControlForce * Mathf.Abs(xInput) && !isJetpackActivated) { // !isJetPackActivated enlevable selon préférence
-                Debug.Log("direct control");
+                //Debug.Log("direct control");
 
 
                 float _forceToAddWithInput = airDirectControlForce * xInput;
@@ -399,7 +399,7 @@ public class F_PlayerController4 : MonoBehaviour
                 rb.linearVelocity = newVelocity;
             } else {
 
-                Debug.Log("physic Control");
+                //Debug.Log("physic Control");
                 float _forceFactor = Mathf.Abs(rb.linearVelocity.x);
                 float _forceToAdd = xInput * airControlForce / (1f + Mathf.Log(_forceFactor + 1f));                                                                                      //Debug.Log("AIR _addedForce = " + _forceToAdd);
                 rb.AddForceX(_forceToAdd, ForceMode2D.Force);

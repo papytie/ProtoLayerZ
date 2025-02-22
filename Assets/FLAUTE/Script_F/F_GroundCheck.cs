@@ -10,9 +10,12 @@ using static UnityEngine.Rendering.DebugUI;
 public class F_GroundCheck : MonoBehaviour
 {
     GameObject controller;
+    CapsuleCollider2D controllerCapsuleCollider;
 
     [SerializeField] private LayerMask whatIsGround;
     [SerializeField] private Vector3 raycastOrigin;
+    [SerializeField] private Vector3 shortRaycastOrigin;
+    [SerializeField] private float shortRaycastLength;
     [SerializeField] private float raycastOriginOffset = 0;
     [SerializeField] private float maxSlopeAngle = 90;
     [SerializeField] private float circleOverlapRadius = 0.35f;
@@ -30,7 +33,6 @@ public class F_GroundCheck : MonoBehaviour
     [SerializeField] float raySpreadGlobalOrientation = 0;
     int numberOfRay = 3;
     [SerializeField] float minDist = 0.1f;
-    //[SerializeField] float minFrontPointDistToDirectChoice = 0.5f;
 
     //DEBUG
     [SerializeField] List<float> allDistances = new List<float>();
@@ -60,6 +62,7 @@ public class F_GroundCheck : MonoBehaviour
 
     private void Awake() {
         controller = transform.parent.gameObject;
+        controllerCapsuleCollider = controller.GetComponentInChildren<CapsuleCollider2D>();
     }
 
     void Start()
@@ -68,7 +71,8 @@ public class F_GroundCheck : MonoBehaviour
         controllerFacingValue = Mathf.Sign(controller.transform.right.x);
         UpdateRayDirectionAccordingToPLayerFacing();
 
-        raycastOrigin = transform.position  + transform.up * raycastOriginOffset;
+        //raycastOrigin = transform.position  + transform.up * raycastOriginOffset;
+        //shortRaycastOrigin = controller.transform.position - transform.up * controllerCapsuleCollider.size.y;
     }
 
     // Update is called once per frame
@@ -79,6 +83,8 @@ public class F_GroundCheck : MonoBehaviour
 
 
         raycastOrigin = transform.position + transform.up * raycastOriginOffset;
+        shortRaycastOrigin = controller.transform.position - transform.up * controllerCapsuleCollider.size.y/2;
+
         controllerFacingValue = Mathf.Sign(controller.transform.right.x);
 
         if(facingValue != controllerFacingValue) {
@@ -115,59 +121,87 @@ public class F_GroundCheck : MonoBehaviour
         // allResults[1] // down
         // allResults[2] // back
 
-        List<int> touchingRaycastIDList = new List<int>(); 
+        //List<int> touchingRaycastIDList = new List<int>(); 
+
+        List<int> touchingRaycastIDList2 = new List<int>(); 
+        List<int> touchingGoodAngleRaycastIDList = new List<int>(); 
+        List<int> touchingBadAngleRaycastIDList = new List<int>(); 
         
         for(int i = 0; i < numberOfRay; i++) {
+            /*
             if(allResults[i] && Vector2.Angle(allResults[i].normal, Vector2.up) < maxSlopeAngle) {
                 touchingRaycastIDList.Add(i);
             }
+            */
+            if(allResults[i]) {
+                touchingRaycastIDList2.Add(i);
+                if(Vector2.Angle(allResults[i].normal, Vector2.up) < maxSlopeAngle) {
+                    touchingGoodAngleRaycastIDList.Add(i);
+                } else {
+                    touchingBadAngleRaycastIDList.Add(i);
+                }
+              
+            }
         }
+
+      
+
+
+        //Debug.Log("COUNT = " + touchingRaycastIDList.Count);
 
         float _frontPointDist;
         float _downPointDist;
         float _backPointDist;
 
         //A FIX : on peut grimper sur des mauvaises penter grace au long raycast vers le bas qui touche un sol plat 
-        if(touchingRaycastIDList.Count == 0) {
-            Debug.Log("COUNT 0");
-            //aucun touche
-            //ajouter le cas de peak
+        //SPECIAL CASE : try to climb bad angle
+        //if(touchingGoodAngleRaycastIDList.Count == 1 && )
 
-            //si on est sur une peak, on caste beaucoup plus bas
+        if(touchingGoodAngleRaycastIDList.Count == 0) {
+            Debug.Log("COUNT 0");
+       
             if(isGroundOverlaped) {
                 Debug.Log("GROUND OVERLAP");
-                //pour bien faire il faudrait séparer les cas de grimpe et de descencte
-                //comment savoir si on grimpe ? SignedAngle front et ground raycasté loin vers le bas ? 
 
-                //si grimpe => un raycast qui origin bout de la capsule collider, direction front, lenght capsule radius
-                //  si hit + angle est bon on prends ce result
-                //  sinon     //faire comme si on touchait un sol plat pour aller tout droit
-                //RaycastHit2D _fakeHitResult = allResults[0];
-                //_fakeHitResult.point = new Vector2(0, 0);
-                //_fakeHitResult.normal = Vector2.up;
-
-                //si descent => => un raycast qui origin bout de la capsule collider, direction back, lenght capsule radius
-
-                RaycastHit2D _newCast = Physics2D.Raycast(raycastOrigin, Vector2.down, peakDownRayLength, whatIsGround);
-                // si ça touche et que l'angle est bon
-                if(_newCast && Vector2.Angle(_newCast.normal, Vector2.up) < maxSlopeAngle) {
-                    //on essaie d'aller vers le front
-                    //CAS SPECIAL
-
+        
+                RaycastHit2D _shortCastFront = Physics2D.Raycast(shortRaycastOrigin,controller.transform.right, shortRaycastLength,whatIsGround);
+                Debug.DrawRay(shortRaycastOrigin, controller.transform.right * shortRaycastLength,Color.red);
+                RaycastHit2D _shortCastBack = Physics2D.Raycast(shortRaycastOrigin,-controller.transform.right, shortRaycastLength,whatIsGround);
+                Debug.DrawRay(shortRaycastOrigin, -controller.transform.right * shortRaycastLength,Color.red);
                 
-                    
-                    
-                    
-                    allResults[0] = _newCast;
+                if(_shortCastFront && Vector2.Angle(_shortCastFront.normal, Vector2.up) < maxSlopeAngle) {
+                    Debug.DrawRay(shortRaycastOrigin, controller.transform.right * _shortCastFront.distance, Color.green);
+                    /*
+                    float _dotProduct = Vector2.Dot(controller.transform.right, _shortCastFront.normal);
+                    // If dotProduct > 0, the character is climbing, if < 0, it's descending
+                    if(_dotProduct > 0) {
+                        Debug.Log("Climbing the slope");
+                    } else if(_dotProduct < 0) {
+                        Debug.Log("Descending the slope");
+                    }
+                    */
+                    RaycastHit2D _fakeHitResult = allResults[0];
+                    _fakeHitResult.point = new Vector2(0, 0);
+                    _fakeHitResult.normal = Vector2.up;
+                    allResults[0] = _fakeHitResult;
                     SetIsGrounded(true, 0);
-                    Debug.Log("ANGLE OK");
+                    Debug.Log("SPECIAL PEAK MONTER");
+                    return;
+                } else if(_shortCastBack && Vector2.Angle(_shortCastBack.normal, Vector2.up) < maxSlopeAngle) {
+                    Debug.DrawRay(shortRaycastOrigin, -controller.transform.right * _shortCastFront.distance, Color.green);
+
+                    RaycastHit2D _fakeHitResult = allResults[0];
+                    _fakeHitResult.point = new Vector2(0, 0);
+                    _fakeHitResult.normal = controller.transform.right;
+                    allResults[0] = _fakeHitResult;
+                    SetIsGrounded(true, 0);
+                    Debug.Log("SPECIAL PEAK DESCENDRE");
                     return;
                 } else {
                     SetIsGrounded(false, 0);
                     Debug.Log("ANGLE NOPE");
                     return;
-                }
-
+                }  
             } else {
                 Debug.Log("GROUND PAS OVERLAP");
                 //0 useless quand grounded false, mais flemme de faire surcharge
@@ -175,21 +209,74 @@ public class F_GroundCheck : MonoBehaviour
                 return;
             }
         } 
-        /*
-        if(touchingRaycastIDList.Count == 0) {
-            SetIsGrounded(false, 0);
-            return;
-        }
-        */
-        if(touchingRaycastIDList.Count == 1) {
-            //ajouter le cas de peak
-            //si 1 seul touche, on le prends
-            SetIsGrounded(true, touchingRaycastIDList[0]);
-            return;
+
+        if(touchingGoodAngleRaycastIDList.Count == 1) {
+
+            //CAS DE MAUVAISE PENTE qu'on grimpe jusqu'au bout du raycast Down grace au down result praticable et aux collisions
+            // si front point Ou back point plus près que down point, on va vers le bas, sinon rien 
+            // on réoriente vers le bas
+            if(touchingBadAngleRaycastIDList.Count >=1 && touchingGoodAngleRaycastIDList.Contains(1)) {
+
+                _downPointDist = Vector2.Distance(allResults[1].point, transform.position);
+
+
+                //Si le front touche un mauvais angle
+                if(touchingBadAngleRaycastIDList.Contains(0)) {
+                    _frontPointDist = Vector2.Distance(allResults[0].point, transform.position);
+                    //si front plus près que down, on va vers le bas
+                    if(_frontPointDist < _downPointDist - minDist) {
+                        RaycastHit2D _fakeHitResult = allResults[0];
+                        _fakeHitResult.point = new Vector2(0, 0);
+                        _fakeHitResult.normal = controller.transform.right;
+                        allResults[0] = _fakeHitResult;
+                        SetIsGrounded(true, 0);
+                        Debug.Log("SPECIAL CASE BAD ANGLE = FRONT");
+                        return;
+                    } else {
+                        SetIsGrounded(true, touchingGoodAngleRaycastIDList[0]);
+                        return;
+                    }
+                }
+
+                //Si le back touche un mauvais angle
+                if(touchingBadAngleRaycastIDList.Contains(2)) {
+                    _backPointDist = Vector2.Distance(allResults[2].point, transform.position);
+                    //si back plus près que down, on va vers le bas
+                    if(_backPointDist < _downPointDist - minDist) {
+                        RaycastHit2D _fakeHitResult = allResults[0];
+                        _fakeHitResult.point = new Vector2(0, 0);
+                        _fakeHitResult.normal = controller.transform.right;
+                        allResults[0] = _fakeHitResult;
+                        SetIsGrounded(true, 0);
+                        Debug.Log("SPECIAL CASE BAD ANGLE = BACK");
+                        return;
+                    } else {
+                        SetIsGrounded(true, touchingGoodAngleRaycastIDList[0]);
+                        return;
+                    }
+                }
+
+                /*
+                _frontPointDist = Vector2.Distance(allResults[0].point, transform.position);
+                _downPointDist = Vector2.Distance(allResults[1].point, transform.position);
+
+                RaycastHit2D _fakeHitResult = allResults[0];
+                _fakeHitResult.point = new Vector2(0, 0);
+                _fakeHitResult.normal = controller.transform.right;
+                allResults[0] = _fakeHitResult;
+                SetIsGrounded(true, 0);
+                Debug.Log("SPECIAL CASE BAD ANGLE");
+                return;
+                */
+
+            } else {
+                SetIsGrounded(true, touchingGoodAngleRaycastIDList[0]);
+                return;
+            }
         } 
         
-        if(touchingRaycastIDList.Count == 2) {
-            if(touchingRaycastIDList.Contains(0) && touchingRaycastIDList.Contains(1)) {
+        if(touchingGoodAngleRaycastIDList.Count == 2) {
+            if(touchingGoodAngleRaycastIDList.Contains(0) && touchingGoodAngleRaycastIDList.Contains(1)) {
                 //front et down touch
                 _frontPointDist = Vector2.Distance(allResults[0].point, transform.position);
                 _downPointDist = Vector2.Distance(allResults[1].point, transform.position);
@@ -203,7 +290,7 @@ public class F_GroundCheck : MonoBehaviour
                     return;
                 }
 
-            } else if(touchingRaycastIDList.Contains(1) && touchingRaycastIDList.Contains(2)) {
+            } else if(touchingGoodAngleRaycastIDList.Contains(1) && touchingGoodAngleRaycastIDList.Contains(2)) {
                 //down et back touch
 
                 _downPointDist = Vector2.Distance(allResults[1].point, transform.position);
@@ -234,7 +321,7 @@ public class F_GroundCheck : MonoBehaviour
             }
         } 
         
-        if(touchingRaycastIDList.Count == 3) {
+        if(touchingGoodAngleRaycastIDList.Count == 3) {
             //si les 3 touche, on les compare tous en donnant prio au front
             _frontPointDist = Vector2.Distance(allResults[0].point, transform.position);
             _downPointDist = Vector2.Distance(allResults[1].point, transform.position);
@@ -338,77 +425,6 @@ public class F_GroundCheck : MonoBehaviour
             return;
         }
 
-        //ici au moins une pente est navigable
-        /*
-        //Organiser du plus près au plus éloigné
-        allResults = allResults.OrderBy(result => result.distance).ToList();
-        UpdateDistanceList();
-
-        //C'est tout, on garde les 3 résultats max trié du plus près au plus éloigné
-        isGrounded = true;
-        SetRaycastResults();
-        return;
-        */
-        /*
-        //Si plusieurs Resultats avec pentes navigables Et les deux premières Equidistantes
-
-        if(allDistances.Count > 1 && allDistances[0] == allDistances[1]) {
-
-            //Si il y a plus d'éléments dans la liste on compare les suivants au premier elem et on arrête dès qu'ils ne sont plus équidistants
-            //on supprime les éléments restants
-            if(allDistances.Count > 2) {
-                for(int i = 2; i < allDistances.Count; i++) {
-                    if(allDistances[i] != allDistances[0]) {
-                        allDistances.RemoveRange(i, allDistances.Count - i);
-                        allResults.RemoveRange(i, allDistances.Count - i);
-                        break;
-                    }
-                }
-            }
-
-            //on regarde chaque élément, le premier ayant la bonne orientation
-            for(int i = 0; i < allResults.Count; i++) {
-                if(Mathf.Sign(allResults[i].normal.x) == - controllerFacingValue) {
-                    
-                    //si i != 0, on supprime les resultats précédents
-                    if(i != 0) { 
-                        allDistances.RemoveRange(0, i-1);
-                        allResults.RemoveRange(0, i - 1);
-                    }
-                    
-                    //normalement ça revient a allResults[0] avec la suppression de précédents
-                    //groundHitResult = allResults[i];
-
-                    isGrounded = true;
-                    SetRaycastResults();
-                    return;
-                }
-            }
-
-            //On arrive ici si les mêmes results distances sont sur la même pentes, on en prends alors un au pif, le premier
-            isGrounded = true;
-            SetRaycastResults();
-            return;
-
-        }
-        else if(allDistances.Count >0) {
-
-            //Si pas d'équidistant, on prends le premier qu'on sait déjà être navigable
-            isGrounded = true;
-            SetRaycastResults();
-            return;
-
-        } else {
-
-            Debug.Log("PLUS CENSE ARRIVE ICIIIIII");
-            //arriver ici signifie qu'aucun angle n'était praticable
-
-            isGrounded = false;
-            SetRaycastResults();
-            return;
-        } 
-        
-        */
     }
 
 
@@ -532,6 +548,10 @@ public class F_GroundCheck : MonoBehaviour
 
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, circleOverlapRadius);
+
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireSphere(shortRaycastOrigin, 0.05f);
+        
 
         if(controller != null) {
             Gizmos.color = Color.white;
