@@ -15,9 +15,12 @@ public class F_PlayerController4 : MonoBehaviour
     InputAction jump;
     InputAction slide;
     InputAction rocket;
+    InputAction interact;
 
+    public F_GameManager gm;
     public F_GroundCheck myGroundCheck;
     public ParticleSystem jetpackParticles;
+    //public F_SpaceshipController spaceship;
 
     [SerializeField] private float movementForce =8;
     [SerializeField] private float airDirectControlForce = 8;
@@ -46,10 +49,11 @@ public class F_PlayerController4 : MonoBehaviour
     [SerializeField] float velocityMagnitude;
     [SerializeField] AnimationCurve inputInfluenceOnInertia;
     
-
+    /*
     public float xInput;
     public float physicInput;
     public float rocketInput;
+    */
 
     public bool canCheckGround = true;
     public bool canActiveInertia = false;
@@ -72,7 +76,7 @@ public class F_PlayerController4 : MonoBehaviour
     private Vector2 newVelocity;
     private Vector2 newForce;
 
-    public Rigidbody2D rb;
+    private Rigidbody2D rb;
     private CapsuleCollider2D cc;
     private Animator myAnimator;
 
@@ -86,11 +90,15 @@ public class F_PlayerController4 : MonoBehaviour
     public float MovementSpeed => movementForce;
     public Vector2 inertiaVelo;
 
+
+    //ACCESSEURS
+    public Rigidbody2D RigidBod => rb;
+
+
     private void OnTriggerStay2D(Collider2D collision) {
         //si on est dans les airs, que le délai canCheckGroundCounter est passé et qu'on trigger le sol ET que le closestPoint est Walkable, on peut check le sol
         if(!myGroundCheck.IsGrounded && canCheckGroundCounter <= 0 && ((1 << collision.gameObject.layer) & myGroundCheck.GroundLayer) != 0) {
 
-            //Debug.Log("CACA");
             Vector2 _closestContactPoint = collision.ClosestPoint(myGroundCheck.transform.position);
             Vector2 _dir = (_closestContactPoint - (Vector2) myGroundCheck.transform.position).normalized;
             RaycastHit2D _hit = Physics2D.Raycast(myGroundCheck.transform.position, _dir, myGroundCheck.CheckedDistance, myGroundCheck.GroundLayer);
@@ -105,20 +113,6 @@ public class F_PlayerController4 : MonoBehaviour
     }
    
 
-    private void Awake() {
-        controls = new Controls();
-        move = controls.MainCharacterMap.Walking;
-        jump = controls.MainCharacterMap.Jumping;
-        slide = controls.MainCharacterMap.Sliding;
-        rocket = controls.MainCharacterMap.Rocket;
-
-        move.Enable();
-        jump.Enable();
-        slide.Enable();
-        rocket.Enable();
-
-        jump.performed += TryToJump;
-    }
 
     void Start()
     {
@@ -136,7 +130,7 @@ public class F_PlayerController4 : MonoBehaviour
         velocityMagnitude = rb.linearVelocity.magnitude;
 
         CheckJump();
-        CheckInput();
+        //CheckInput();
         CheckFlip();
 
         if(!myGroundCheck.IsGrounded && !myGroundCheck.IsGroundOverlaped || isInAirAndTouchingNonWalkableSlope || isJetpackActivated) {
@@ -182,26 +176,30 @@ public class F_PlayerController4 : MonoBehaviour
 
 
     //TRIGGER BY INPUT
-    void TryToJump(InputAction.CallbackContext _context) {
+    public void TryToJump(InputAction.CallbackContext _context) {
 
         //Reset jump counter
         jumpBufferCount = jumpBufferLength;
         tryToJump = true;
-
     }
+
+    public void TryToInteract(InputAction.CallbackContext _context) {
+
+        //si autre interaction possible, faire la plus proche en priorisant les autres interactions par rapport a embarquer
+
+        if(gm.PlayerSpaceship.CanEnterSpaceship) {
+            gm.OnShipEnter.Invoke();
+        }
+    }
+
 
     //UPDATE
-    private void CheckInput() {
-        xInput = move.ReadValue<float>();
-        physicInput = slide.ReadValue<float>();
-        rocketInput = rocket.ReadValue<float>();
-    }
 
     private void CheckFlip() {
 
-        float _signInput = Mathf.Sign(xInput);
+        float _signInput = Mathf.Sign(gm.Inputs.CharInputX);
 
-        if(!isStillControledByPhysic && xInput != 0 && facingDirection != _signInput) {
+        if(!isStillControledByPhysic && gm.Inputs.CharInputX != 0 && facingDirection != _signInput) {
             facingDirection = _signInput;
             transform.Rotate(0.0f, 180.0f, 0.0f);
             return;
@@ -249,7 +247,7 @@ public class F_PlayerController4 : MonoBehaviour
 
 
         ////// //isControledByPhysic ////
-        if(physicInput != 0 && myGroundCheck.IsGrounded ) { //|| (rocketInput !=0)
+        if(gm.Inputs.CharPhysicInput != 0 && myGroundCheck.IsGrounded ) { //|| (rocketInput !=0)
             isPhysicMovementActivated = true;
         } else {
             isPhysicMovementActivated = false;
@@ -271,7 +269,7 @@ public class F_PlayerController4 : MonoBehaviour
         }
 
         ////// isJetpackActivated /////
-        if(rocketInput != 0) {
+        if(gm.Inputs.CharRocketInput != 0) {
             isJetpackActivated = true;
         } else {
             isJetpackActivated = false;
@@ -303,11 +301,11 @@ public class F_PlayerController4 : MonoBehaviour
             //changer la direction du jump selon le cas
             Vector2 _jumpDirection;
             if(rb.linearVelocity.y >= 0) {
-                Debug.Log("on va vers le haut");
+                //Debug.Log("on va vers le haut");
                 _jumpDirection = Vector2.up;
             } else {                
                 if(isStillControledByPhysic || isSliding) {
-                    Debug.Log("on va vers l'avant");
+                    //Debug.Log("on va vers l'avant");
                     float _angle = Vector2.Angle(myGroundCheck.GroundHitResult.normal, Vector2.up);
                     _jumpDirection = myGroundCheck.RotateVector(myGroundCheck.GroundHitResult.normal, _angle / 2);
                 } else {
@@ -330,7 +328,7 @@ public class F_PlayerController4 : MonoBehaviour
     private void UpdatePhysicParams() {
 
         //PHYSIC MAT
-        if(myGroundCheck.IsGrounded && !isStillControledByPhysic && xInput == 0 && !isJumping) {
+        if(myGroundCheck.IsGrounded && !isStillControledByPhysic && gm.Inputs.CharInputX == 0 && !isJumping) {
             rb.sharedMaterial = maxFriction;
         } else {
             rb.sharedMaterial = minFriction;
@@ -364,9 +362,9 @@ public class F_PlayerController4 : MonoBehaviour
             currentmovementSpeed = movementForce;
             Vector2 _walkDirection = -Vector2.Perpendicular(myGroundCheck.GroundHitResult.normal).normalized;
 
-            newVelocity.Set(movementForce * _walkDirection.x * xInput, movementForce * _walkDirection.y * xInput);
+            newVelocity.Set(movementForce * _walkDirection.x * gm.Inputs.CharInputX, movementForce * _walkDirection.y * gm.Inputs.CharInputX);
             Debug.DrawRay(transform.position, newVelocity, Color.cyan);
-            float _dir = Mathf.Sign(xInput) != 0 ? Mathf.Sign(xInput) : 0;
+            float _dir = Mathf.Sign(gm.Inputs.CharInputX) != 0 ? Mathf.Sign(gm.Inputs.CharInputX) : 0;
 
             //FIX Décallage avec le sol           
             if(myGroundCheck.IsGroundedButFarFromGround) {
@@ -389,18 +387,18 @@ public class F_PlayerController4 : MonoBehaviour
         if(!myGroundCheck.IsGrounded) {
             
 
-            if(Mathf.Abs(rb.linearVelocity.x) <= airDirectControlForce * Mathf.Abs(xInput) && !isJetpackActivated) { // !isJetPackActivated enlevable selon préférence
-                Debug.Log("direct control");
+            if(Mathf.Abs(rb.linearVelocity.x) <= airDirectControlForce * Mathf.Abs(gm.Inputs.CharInputX) && !isJetpackActivated) { // !isJetPackActivated enlevable selon préférence
+                //Debug.Log("direct control");
 
 
-                float _forceToAddWithInput = airDirectControlForce * xInput;
+                float _forceToAddWithInput = airDirectControlForce * gm.Inputs.CharInputX;
 
                 //fix grimper sur des pentes non praticable juste avec ce mouvement
                 RaycastHit2D _castFront = Physics2D.Raycast(myGroundCheck.transform.position, transform.right, 0.6f, myGroundCheck.GroundLayer);
                 Debug.DrawRay(myGroundCheck.transform.position, transform.right * 0.6f, Color.gray);
                 if(_castFront && Vector2.Angle(_castFront.normal, Vector2.up) > myGroundCheck.MaxGroundAngle) {
                     //fix, on est en train d'essayer de grimper une mauvaise pente => pas de mouvement
-                    Debug.Log("FIX BAD ANGLE");
+                    //Debug.Log("FIX BAD ANGLE");
                 } else {
                     //mouvement normal
                     newVelocity.Set(_forceToAddWithInput, rb.linearVelocity.y);
@@ -411,7 +409,7 @@ public class F_PlayerController4 : MonoBehaviour
 
                 //Debug.Log("physic Control");
                 float _forceFactor = Mathf.Abs(rb.linearVelocity.x);
-                float _forceToAdd = xInput * airControlForce / (1f + Mathf.Log(_forceFactor + 1f));                                                                                      //Debug.Log("AIR _addedForce = " + _forceToAdd);
+                float _forceToAdd = gm.Inputs.CharInputX * airControlForce / (1f + Mathf.Log(_forceFactor + 1f));                                                                                      //Debug.Log("AIR _addedForce = " + _forceToAdd);
                 rb.AddForceX(_forceToAdd, ForceMode2D.Force);
             }
 
@@ -423,17 +421,17 @@ public class F_PlayerController4 : MonoBehaviour
 
         //ONLY PHYSIC MOVEMENT
         if(isPhysicMovementActivated && !isJetpackActivated) {
-            Debug.Log("Only physic move player");
+            //Debug.Log("Only physic move player");
             return;
         }
 
         // SLIDE MOVEMENT
         if(isSliding) {
             
-            Debug.Log("SLIDE MOOV");
+            //Debug.Log("SLIDE MOOV");
             // Calculate the force to apply based on current velocity with logarithmic scaling
             float _forceFactor = Mathf.Abs(rb.linearVelocity.x);
-            float _forceToAdd = xInput * slideControlForce / (1f + Mathf.Log(_forceFactor + 1f)); // Logarithmic scaling
+            float _forceToAdd = gm.Inputs.CharInputX * slideControlForce / (1f + Mathf.Log(_forceFactor + 1f)); // Logarithmic scaling
             //Debug.Log("SLIDE _addedForce = " + _forceToAdd);
 
             Vector2 _slideDirection = -Vector2.Perpendicular(myGroundCheck.GroundHitResult.normal).normalized;
@@ -445,7 +443,7 @@ public class F_PlayerController4 : MonoBehaviour
         //JETPACK MOVEMENT
         if(isJetpackActivated) {
 
-            Debug.Log("JET MOOV");
+            //Debug.Log("JET MOOV");
             float _forceFactor = Mathf.Abs(rb.linearVelocity.y);
             float _forceToAdd = jetpackForce / (1f + Mathf.Log(_forceFactor + 1f)); // ajouter rocketInput* pour pouvoir faire le jetpack vers le bas
             //Debug.Log("JET _addedForce = " + _forceToAdd);
@@ -466,13 +464,15 @@ public class F_PlayerController4 : MonoBehaviour
         ParticleSystem.EmissionModule _jetpackEmissionModule = jetpackParticles.emission;
         ParticleSystem.ShapeModule _jetpackShapeModule = jetpackParticles.shape;
         _jetpackEmissionModule.enabled = isJetpackActivated;
-        _jetpackShapeModule.rotation = rocketInput < 0 ? new Vector3(0,0, 101.25f) : new Vector3(0, 0, -101.25f);
+        _jetpackShapeModule.rotation = gm.Inputs.CharRocketInput < 0 ? new Vector3(0,0, 101.25f) : new Vector3(0, 0, -101.25f);
     }
 
 
 
     private void OnDrawGizmos() {
         
+        if(!Application.isPlaying)return;
+
         Gizmos.color = Color.green;
         Vector3 _newPos2 = transform.position + transform.up * 0.5f;
         Gizmos.DrawRay(_newPos2, rb.linearVelocity);

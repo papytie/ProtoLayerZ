@@ -126,6 +126,15 @@ public partial class @Controls: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""Interact"",
+                    ""type"": ""Button"",
+                    ""id"": ""a3ef316f-ffda-483c-9b3a-73ca86a789ba"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
                 }
             ],
             ""bindings"": [
@@ -304,6 +313,292 @@ public partial class @Controls: IInputActionCollection2, IDisposable
                     ""action"": ""Rocket"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""7d4fdd6d-f820-4c96-b137-7233a9cab2c3"",
+                    ""path"": ""<Gamepad>/buttonNorth"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Interact"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""5abde3f7-75e9-48e0-bb08-d63bdfe2a386"",
+                    ""path"": ""<Keyboard>/e"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Interact"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                }
+            ]
+        },
+        {
+            ""name"": ""SpaceshipMap"",
+            ""id"": ""e9b0b7cc-9a1f-486f-b193-1cb7a6e0d61d"",
+            ""actions"": [
+                {
+                    ""name"": ""Zmovement"",
+                    ""type"": ""Value"",
+                    ""id"": ""533d07ed-1151-4caf-9ea9-fa8a38c1f0d7"",
+                    ""expectedControlType"": ""Axis"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""2DMovement"",
+                    ""type"": ""Value"",
+                    ""id"": ""ca30e64a-9bee-494d-8f4d-96a9252ea0f6"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""LandingTakeOff"",
+                    ""type"": ""Button"",
+                    ""id"": ""efb27378-7664-421d-9ee7-385ae95d0eed"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""EjectPlayer"",
+                    ""type"": ""Button"",
+                    ""id"": ""59e3a2f5-bd4b-47b9-acf3-4459df08fc5f"",
+                    ""expectedControlType"": """",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": false
+                }
+            ],
+            ""bindings"": [
+                {
+                    ""name"": ""1D Axis"",
+                    ""id"": ""dd0d04af-f06a-461d-8404-18e06b211e7e"",
+                    ""path"": ""1DAxis"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Zmovement"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""negative"",
+                    ""id"": ""b4907da8-0f58-4941-930e-fd43dbe001d5"",
+                    ""path"": ""<Gamepad>/leftTrigger"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Zmovement"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""positive"",
+                    ""id"": ""a912dd13-1e0e-4c38-94eb-6a6f5206235c"",
+                    ""path"": ""<Gamepad>/rightTrigger"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Zmovement"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""1D Axis"",
+                    ""id"": ""9263f86d-dd86-498b-9f63-7b363146345b"",
+                    ""path"": ""1DAxis"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Zmovement"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""negative"",
+                    ""id"": ""eb697a8c-bde8-46b2-9e36-294d6edcecbb"",
+                    ""path"": ""<Keyboard>/downArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Zmovement"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""positive"",
+                    ""id"": ""b06b0ef5-7714-402a-abf0-aa09991ffa94"",
+                    ""path"": ""<Keyboard>/upArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Zmovement"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""3e7a89d7-0165-4d4b-b055-fc6fc2e70943"",
+                    ""path"": ""<Gamepad>/buttonSouth"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""LandingTakeOff"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""4f58a7ee-8902-4407-a6af-bd49903d80d2"",
+                    ""path"": ""<Keyboard>/space"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""LandingTakeOff"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""2D Vector"",
+                    ""id"": ""a7499bf3-c96c-401a-9648-29984bafbaa3"",
+                    ""path"": ""2DVector"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""2DMovement"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""up"",
+                    ""id"": ""73661041-c1ac-42f6-a458-b6faa22f3363"",
+                    ""path"": ""<Gamepad>/leftStick/up"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""2DMovement"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""down"",
+                    ""id"": ""d52d7349-c95b-4ba0-ae22-0b1fb393391b"",
+                    ""path"": ""<Gamepad>/leftStick/down"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""2DMovement"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""left"",
+                    ""id"": ""12944e77-b390-4da0-aa25-7a5ba1f8f06f"",
+                    ""path"": ""<Gamepad>/leftStick/left"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""2DMovement"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""right"",
+                    ""id"": ""5e394318-1dd5-41cf-9cf8-7f49a2d383e6"",
+                    ""path"": ""<Gamepad>/leftStick/right"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""2DMovement"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""2D Vector"",
+                    ""id"": ""7197b85e-bf29-4364-897d-8541004d93cd"",
+                    ""path"": ""2DVector"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""2DMovement"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""up"",
+                    ""id"": ""a8fcd56b-bbc9-419e-bd88-d4c0dee8bc60"",
+                    ""path"": ""<Keyboard>/w"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""2DMovement"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""down"",
+                    ""id"": ""4ca2014d-3985-4d54-bd47-2f567752faeb"",
+                    ""path"": ""<Keyboard>/s"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""2DMovement"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""left"",
+                    ""id"": ""adba45e9-59d5-498d-829e-3915956e039e"",
+                    ""path"": ""<Keyboard>/a"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""2DMovement"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""right"",
+                    ""id"": ""c7fd3377-c3de-4bef-909f-3ab478b66650"",
+                    ""path"": ""<Keyboard>/d"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""2DMovement"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""679adcfe-d21a-490a-aaad-475af42ab66e"",
+                    ""path"": ""<Gamepad>/buttonNorth"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""EjectPlayer"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""096988dd-52fa-442e-a0fc-d2f36fb3301a"",
+                    ""path"": ""<Keyboard>/e"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""EjectPlayer"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }
@@ -316,11 +611,19 @@ public partial class @Controls: IInputActionCollection2, IDisposable
         m_MainCharacterMap_Jumping = m_MainCharacterMap.FindAction("Jumping", throwIfNotFound: true);
         m_MainCharacterMap_Sliding = m_MainCharacterMap.FindAction("Sliding", throwIfNotFound: true);
         m_MainCharacterMap_Rocket = m_MainCharacterMap.FindAction("Rocket", throwIfNotFound: true);
+        m_MainCharacterMap_Interact = m_MainCharacterMap.FindAction("Interact", throwIfNotFound: true);
+        // SpaceshipMap
+        m_SpaceshipMap = asset.FindActionMap("SpaceshipMap", throwIfNotFound: true);
+        m_SpaceshipMap_Zmovement = m_SpaceshipMap.FindAction("Zmovement", throwIfNotFound: true);
+        m_SpaceshipMap__2DMovement = m_SpaceshipMap.FindAction("2DMovement", throwIfNotFound: true);
+        m_SpaceshipMap_LandingTakeOff = m_SpaceshipMap.FindAction("LandingTakeOff", throwIfNotFound: true);
+        m_SpaceshipMap_EjectPlayer = m_SpaceshipMap.FindAction("EjectPlayer", throwIfNotFound: true);
     }
 
     ~@Controls()
     {
         UnityEngine.Debug.Assert(!m_MainCharacterMap.enabled, "This will cause a leak and performance issues, Controls.MainCharacterMap.Disable() has not been called.");
+        UnityEngine.Debug.Assert(!m_SpaceshipMap.enabled, "This will cause a leak and performance issues, Controls.SpaceshipMap.Disable() has not been called.");
     }
 
     /// <summary>
@@ -400,6 +703,7 @@ public partial class @Controls: IInputActionCollection2, IDisposable
     private readonly InputAction m_MainCharacterMap_Jumping;
     private readonly InputAction m_MainCharacterMap_Sliding;
     private readonly InputAction m_MainCharacterMap_Rocket;
+    private readonly InputAction m_MainCharacterMap_Interact;
     /// <summary>
     /// Provides access to input actions defined in input action map "MainCharacterMap".
     /// </summary>
@@ -427,6 +731,10 @@ public partial class @Controls: IInputActionCollection2, IDisposable
         /// Provides access to the underlying input action "MainCharacterMap/Rocket".
         /// </summary>
         public InputAction @Rocket => m_Wrapper.m_MainCharacterMap_Rocket;
+        /// <summary>
+        /// Provides access to the underlying input action "MainCharacterMap/Interact".
+        /// </summary>
+        public InputAction @Interact => m_Wrapper.m_MainCharacterMap_Interact;
         /// <summary>
         /// Provides access to the underlying input action map instance.
         /// </summary>
@@ -465,6 +773,9 @@ public partial class @Controls: IInputActionCollection2, IDisposable
             @Rocket.started += instance.OnRocket;
             @Rocket.performed += instance.OnRocket;
             @Rocket.canceled += instance.OnRocket;
+            @Interact.started += instance.OnInteract;
+            @Interact.performed += instance.OnInteract;
+            @Interact.canceled += instance.OnInteract;
         }
 
         /// <summary>
@@ -488,6 +799,9 @@ public partial class @Controls: IInputActionCollection2, IDisposable
             @Rocket.started -= instance.OnRocket;
             @Rocket.performed -= instance.OnRocket;
             @Rocket.canceled -= instance.OnRocket;
+            @Interact.started -= instance.OnInteract;
+            @Interact.performed -= instance.OnInteract;
+            @Interact.canceled -= instance.OnInteract;
         }
 
         /// <summary>
@@ -521,6 +835,135 @@ public partial class @Controls: IInputActionCollection2, IDisposable
     /// Provides a new <see cref="MainCharacterMapActions" /> instance referencing this action map.
     /// </summary>
     public MainCharacterMapActions @MainCharacterMap => new MainCharacterMapActions(this);
+
+    // SpaceshipMap
+    private readonly InputActionMap m_SpaceshipMap;
+    private List<ISpaceshipMapActions> m_SpaceshipMapActionsCallbackInterfaces = new List<ISpaceshipMapActions>();
+    private readonly InputAction m_SpaceshipMap_Zmovement;
+    private readonly InputAction m_SpaceshipMap__2DMovement;
+    private readonly InputAction m_SpaceshipMap_LandingTakeOff;
+    private readonly InputAction m_SpaceshipMap_EjectPlayer;
+    /// <summary>
+    /// Provides access to input actions defined in input action map "SpaceshipMap".
+    /// </summary>
+    public struct SpaceshipMapActions
+    {
+        private @Controls m_Wrapper;
+
+        /// <summary>
+        /// Construct a new instance of the input action map wrapper class.
+        /// </summary>
+        public SpaceshipMapActions(@Controls wrapper) { m_Wrapper = wrapper; }
+        /// <summary>
+        /// Provides access to the underlying input action "SpaceshipMap/Zmovement".
+        /// </summary>
+        public InputAction @Zmovement => m_Wrapper.m_SpaceshipMap_Zmovement;
+        /// <summary>
+        /// Provides access to the underlying input action "SpaceshipMap/_2DMovement".
+        /// </summary>
+        public InputAction @_2DMovement => m_Wrapper.m_SpaceshipMap__2DMovement;
+        /// <summary>
+        /// Provides access to the underlying input action "SpaceshipMap/LandingTakeOff".
+        /// </summary>
+        public InputAction @LandingTakeOff => m_Wrapper.m_SpaceshipMap_LandingTakeOff;
+        /// <summary>
+        /// Provides access to the underlying input action "SpaceshipMap/EjectPlayer".
+        /// </summary>
+        public InputAction @EjectPlayer => m_Wrapper.m_SpaceshipMap_EjectPlayer;
+        /// <summary>
+        /// Provides access to the underlying input action map instance.
+        /// </summary>
+        public InputActionMap Get() { return m_Wrapper.m_SpaceshipMap; }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Enable()" />
+        public void Enable() { Get().Enable(); }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.Disable()" />
+        public void Disable() { Get().Disable(); }
+        /// <inheritdoc cref="UnityEngine.InputSystem.InputActionMap.enabled" />
+        public bool enabled => Get().enabled;
+        /// <summary>
+        /// Implicitly converts an <see ref="SpaceshipMapActions" /> to an <see ref="InputActionMap" /> instance.
+        /// </summary>
+        public static implicit operator InputActionMap(SpaceshipMapActions set) { return set.Get(); }
+        /// <summary>
+        /// Adds <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
+        /// </summary>
+        /// <param name="instance">Callback instance.</param>
+        /// <remarks>
+        /// If <paramref name="instance" /> is <c>null</c> or <paramref name="instance"/> have already been added this method does nothing.
+        /// </remarks>
+        /// <seealso cref="SpaceshipMapActions" />
+        public void AddCallbacks(ISpaceshipMapActions instance)
+        {
+            if (instance == null || m_Wrapper.m_SpaceshipMapActionsCallbackInterfaces.Contains(instance)) return;
+            m_Wrapper.m_SpaceshipMapActionsCallbackInterfaces.Add(instance);
+            @Zmovement.started += instance.OnZmovement;
+            @Zmovement.performed += instance.OnZmovement;
+            @Zmovement.canceled += instance.OnZmovement;
+            @_2DMovement.started += instance.On_2DMovement;
+            @_2DMovement.performed += instance.On_2DMovement;
+            @_2DMovement.canceled += instance.On_2DMovement;
+            @LandingTakeOff.started += instance.OnLandingTakeOff;
+            @LandingTakeOff.performed += instance.OnLandingTakeOff;
+            @LandingTakeOff.canceled += instance.OnLandingTakeOff;
+            @EjectPlayer.started += instance.OnEjectPlayer;
+            @EjectPlayer.performed += instance.OnEjectPlayer;
+            @EjectPlayer.canceled += instance.OnEjectPlayer;
+        }
+
+        /// <summary>
+        /// Removes <see cref="InputAction.started"/>, <see cref="InputAction.performed"/> and <see cref="InputAction.canceled"/> callbacks provided via <param cref="instance" /> on all input actions contained in this map.
+        /// </summary>
+        /// <remarks>
+        /// Calling this method when <paramref name="instance" /> have not previously been registered has no side-effects.
+        /// </remarks>
+        /// <seealso cref="SpaceshipMapActions" />
+        private void UnregisterCallbacks(ISpaceshipMapActions instance)
+        {
+            @Zmovement.started -= instance.OnZmovement;
+            @Zmovement.performed -= instance.OnZmovement;
+            @Zmovement.canceled -= instance.OnZmovement;
+            @_2DMovement.started -= instance.On_2DMovement;
+            @_2DMovement.performed -= instance.On_2DMovement;
+            @_2DMovement.canceled -= instance.On_2DMovement;
+            @LandingTakeOff.started -= instance.OnLandingTakeOff;
+            @LandingTakeOff.performed -= instance.OnLandingTakeOff;
+            @LandingTakeOff.canceled -= instance.OnLandingTakeOff;
+            @EjectPlayer.started -= instance.OnEjectPlayer;
+            @EjectPlayer.performed -= instance.OnEjectPlayer;
+            @EjectPlayer.canceled -= instance.OnEjectPlayer;
+        }
+
+        /// <summary>
+        /// Unregisters <param cref="instance" /> and unregisters all input action callbacks via <see cref="SpaceshipMapActions.UnregisterCallbacks(ISpaceshipMapActions)" />.
+        /// </summary>
+        /// <seealso cref="SpaceshipMapActions.UnregisterCallbacks(ISpaceshipMapActions)" />
+        public void RemoveCallbacks(ISpaceshipMapActions instance)
+        {
+            if (m_Wrapper.m_SpaceshipMapActionsCallbackInterfaces.Remove(instance))
+                UnregisterCallbacks(instance);
+        }
+
+        /// <summary>
+        /// Replaces all existing callback instances and previously registered input action callbacks associated with them with callbacks provided via <param cref="instance" />.
+        /// </summary>
+        /// <remarks>
+        /// If <paramref name="instance" /> is <c>null</c>, calling this method will only unregister all existing callbacks but not register any new callbacks.
+        /// </remarks>
+        /// <seealso cref="SpaceshipMapActions.AddCallbacks(ISpaceshipMapActions)" />
+        /// <seealso cref="SpaceshipMapActions.RemoveCallbacks(ISpaceshipMapActions)" />
+        /// <seealso cref="SpaceshipMapActions.UnregisterCallbacks(ISpaceshipMapActions)" />
+        public void SetCallbacks(ISpaceshipMapActions instance)
+        {
+            foreach (var item in m_Wrapper.m_SpaceshipMapActionsCallbackInterfaces)
+                UnregisterCallbacks(item);
+            m_Wrapper.m_SpaceshipMapActionsCallbackInterfaces.Clear();
+            AddCallbacks(instance);
+        }
+    }
+    /// <summary>
+    /// Provides a new <see cref="SpaceshipMapActions" /> instance referencing this action map.
+    /// </summary>
+    public SpaceshipMapActions @SpaceshipMap => new SpaceshipMapActions(this);
     /// <summary>
     /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "MainCharacterMap" which allows adding and removing callbacks.
     /// </summary>
@@ -556,5 +999,48 @@ public partial class @Controls: IInputActionCollection2, IDisposable
         /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
         /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
         void OnRocket(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "Interact" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnInteract(InputAction.CallbackContext context);
+    }
+    /// <summary>
+    /// Interface to implement callback methods for all input action callbacks associated with input actions defined by "SpaceshipMap" which allows adding and removing callbacks.
+    /// </summary>
+    /// <seealso cref="SpaceshipMapActions.AddCallbacks(ISpaceshipMapActions)" />
+    /// <seealso cref="SpaceshipMapActions.RemoveCallbacks(ISpaceshipMapActions)" />
+    public interface ISpaceshipMapActions
+    {
+        /// <summary>
+        /// Method invoked when associated input action "Zmovement" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnZmovement(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "2DMovement" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void On_2DMovement(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "LandingTakeOff" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnLandingTakeOff(InputAction.CallbackContext context);
+        /// <summary>
+        /// Method invoked when associated input action "EjectPlayer" is either <see cref="UnityEngine.InputSystem.InputAction.started" />, <see cref="UnityEngine.InputSystem.InputAction.performed" /> or <see cref="UnityEngine.InputSystem.InputAction.canceled" />.
+        /// </summary>
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.started" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.performed" />
+        /// <seealso cref="UnityEngine.InputSystem.InputAction.canceled" />
+        void OnEjectPlayer(InputAction.CallbackContext context);
     }
 }

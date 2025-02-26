@@ -16,3 +16,29 @@ MonoBehaviour:
   - Path: Assets/Resources/DOTweenSettings.asset
     Type: DG.Tweening.Core.DOTweenSettings, DOTween, Version=1.0.0.0, Culture=neutral,
       PublicKeyToken=null
+  - Path: Assets/Cartoon Coffee/Demo/TextMesh Pro/Resources/Sprite Assets/EmojiOne.asset
+    Type: TMPro.TMP_SpriteAsset, Unity.TextMeshPro, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
+  - Path: Assets/Cartoon Coffee/Demo/TextMesh Pro/Resources/LineBreaking Leading
+      Characters.txt
+    Type: UnityEngine.TextAsset, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
+  - Path: Assets/Cartoon Coffee/Demo/TextMesh Pro/Resources/Style Sheets/Default
+      Style Sheet.asset
+    Type: TMPro.TMP_StyleSheet, Unity.TextMeshPro, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
+  - Path: Assets/Cartoon Coffee/Demo/TextMesh Pro/Resources/LineBreaking Following
+      Characters.txt
+    Type: UnityEngine.TextAsset, UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
+  - Path: Assets/Cartoon Coffee/Demo/TextMesh Pro/Resources/Fonts & Materials/LiberationSans
+      SDF - Fallback.asset
+    Type: TMPro.TMP_FontAsset, Unity.TextMeshPro, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
+  - Path: Assets/Cartoon Coffee/Demo/TextMesh Pro/Resources/TMP Settings.asset
+    Type: TMPro.TMP_Settings, Unity.TextMeshPro, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null
+  - Path: Assets/Cartoon Coffee/Demo/TextMesh Pro/Resources/Fonts & Materials/LiberationSans
+      SDF.asset
+    Type: TMPro.TMP_FontAsset, Unity.TextMeshPro, Version=0.0.0.0, Culture=neutral,
+      PublicKeyToken=null

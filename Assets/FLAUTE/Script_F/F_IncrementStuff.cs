@@ -5,6 +5,8 @@ using UnityEngine.U2D;
 
 public class F_IncrementStuff : MonoBehaviour
 {
+
+    [SerializeField] Transform strateContainer;
     [SerializeField] List<GameObject> allObjects = new List<GameObject>();
     [SerializeField] float spacing = 1;
 
@@ -23,14 +25,25 @@ public class F_IncrementStuff : MonoBehaviour
         
     }
 
+    void SetAllObjectList() {
+        allObjects.Clear();
+        foreach(Transform _trans in strateContainer) {
+            allObjects.Add(_trans.gameObject);
+        }
+    }
+
     [ContextMenu("Increment Position")]
     void IncrementPosition() {
 
-        Vector3 _startPos = allObjects[0].transform.position;
+        SetAllObjectList();
+        if(allObjects.Count == 0) return;
 
+
+        Vector3 _startPos = allObjects[0].transform.position;
         for(int i = 0; i < allObjects.Count; i++) {
             allObjects[i].transform.position = new Vector3(_startPos.x, _startPos.y, spacing * i);
         }
+
     }
 
 

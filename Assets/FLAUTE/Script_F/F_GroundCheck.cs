@@ -158,10 +158,10 @@ public class F_GroundCheck : MonoBehaviour
         //if(touchingGoodAngleRaycastIDList.Count == 1 && )
 
         if(touchingGoodAngleRaycastIDList.Count == 0) {
-            Debug.Log("COUNT 0");
+            //Debug.Log("COUNT 0");
        
             if(isGroundOverlaped) {
-                Debug.Log("GROUND OVERLAP");
+                //Debug.Log("GROUND OVERLAP");
 
         
                 RaycastHit2D _shortCastFront = Physics2D.Raycast(shortRaycastOrigin,controller.transform.right, shortRaycastLength,whatIsGround);
@@ -185,7 +185,7 @@ public class F_GroundCheck : MonoBehaviour
                     _fakeHitResult.normal = Vector2.up;
                     allResults[0] = _fakeHitResult;
                     SetIsGrounded(true, 0);
-                    Debug.Log("SPECIAL PEAK MONTER");
+                    //Debug.Log("SPECIAL PEAK MONTER");
                     return;
                 } else if(_shortCastBack && Vector2.Angle(_shortCastBack.normal, Vector2.up) < maxSlopeAngle) {
                     Debug.DrawRay(shortRaycastOrigin, -controller.transform.right * _shortCastFront.distance, Color.green);
@@ -195,15 +195,15 @@ public class F_GroundCheck : MonoBehaviour
                     _fakeHitResult.normal = controller.transform.right;
                     allResults[0] = _fakeHitResult;
                     SetIsGrounded(true, 0);
-                    Debug.Log("SPECIAL PEAK DESCENDRE");
+                    //Debug.Log("SPECIAL PEAK DESCENDRE");
                     return;
                 } else {
                     SetIsGrounded(false, 0);
-                    Debug.Log("ANGLE NOPE");
+                    //Debug.Log("ANGLE NOPE");
                     return;
                 }  
             } else {
-                Debug.Log("GROUND PAS OVERLAP");
+                //Debug.Log("GROUND PAS OVERLAP");
                 //0 useless quand grounded false, mais flemme de faire surcharge
                 SetIsGrounded(false, 0);
                 return;
@@ -232,8 +232,7 @@ public class F_GroundCheck : MonoBehaviour
                         _fakeHitResult.normal = controller.transform.right;
                         allResults[0] = _fakeHitResult;
                         SetIsGrounded(true, 0);
-                        Debug.Log("SPECIAL CASE BAD ANGLE = FRONT");
-                        //SetIsGrounded(false, 0);
+                        //Debug.Log("SPECIAL CASE BAD ANGLE = FRONT");
                         return;
                     } else {
                         SetIsGrounded(true, touchingGoodAngleRaycastIDList[0]);
@@ -251,29 +250,14 @@ public class F_GroundCheck : MonoBehaviour
                         _fakeHitResult.normal = controller.transform.right;
                         allResults[0] = _fakeHitResult;
                         SetIsGrounded(true, 0);
-                        Debug.Log("SPECIAL CASE BAD ANGLE = BACK");
-                        /*
-                        */
-                        //SetIsGrounded(false, 0);
+                        //Debug.Log("SPECIAL CASE BAD ANGLE = BACK");
+                     
                         return;
                     } else {
                         SetIsGrounded(true, touchingGoodAngleRaycastIDList[0]);
                         return;
                     }
                 }
-
-                /*
-                _frontPointDist = Vector2.Distance(allResults[0].point, transform.position);
-                _downPointDist = Vector2.Distance(allResults[1].point, transform.position);
-
-                RaycastHit2D _fakeHitResult = allResults[0];
-                _fakeHitResult.point = new Vector2(0, 0);
-                _fakeHitResult.normal = controller.transform.right;
-                allResults[0] = _fakeHitResult;
-                SetIsGrounded(true, 0);
-                Debug.Log("SPECIAL CASE BAD ANGLE");
-                return;
-                */
 
             } else {
                 SetIsGrounded(true, touchingGoodAngleRaycastIDList[0]);

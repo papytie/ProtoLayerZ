@@ -1,11 +1,16 @@
 using Unity.Cinemachine;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class F_Camera : MonoBehaviour
 {
-
+    [SerializeField] F_GameManager gm;
+    CinemachineCamera cinemachineCam;
     CinemachinePositionComposer cinemachinePositionComposer;
-    [SerializeField] F_PlayerController4 playerController;
+    //[SerializeField] F_PlayerController4 playerController;
+    //[SerializeField] F_SpaceshipController spaceshipController;
+
+    [SerializeField] Transform currentTarget;
     
     [SerializeField] float xOffset = 5;
      float yOffset = 2.5f;
@@ -15,12 +20,13 @@ public class F_Camera : MonoBehaviour
 
 
     private void Awake() {
+        cinemachineCam = GetComponent<CinemachineCamera>();
         cinemachinePositionComposer = GetComponent<CinemachinePositionComposer>();
     }
 
     void Start()
     {
-        
+        currentTarget = cinemachineCam.Follow.transform;
     }
 
     // Update is called once per frame
@@ -29,16 +35,16 @@ public class F_Camera : MonoBehaviour
 
         yOffset = xOffset / 4;
 
-        float _angleVeloUp = Vector2.Angle(playerController.rb.linearVelocity.normalized, Vector2.up);
+        float _angleVeloUp = Vector2.Angle(gm.PlayerCharacter.RigidBod.linearVelocity.normalized, Vector2.up);
         //Debug.Log(_angleVeloUp);
         if(_angleVeloUp>= 80 && _angleVeloUp <=110){
             yOffset = 0;
         }
   
-        if(playerController.rb.linearVelocity.magnitude > 0.001f) {//Si movement
+        if(gm.PlayerCharacter.RigidBod.linearVelocity.magnitude > 0.001f) {//Si movement
 
-            if(Mathf.Abs(playerController.rb.linearVelocity.y)>0.01f){//si déplacement sur pente
-                ySign = Mathf.Sign(playerController.rb.linearVelocity.y);
+            if(Mathf.Abs(gm.PlayerCharacter.RigidBod.linearVelocity.y)>0.01f){//si déplacement sur pente
+                ySign = Mathf.Sign(gm.PlayerCharacter.RigidBod.linearVelocity.y);
             } else { //déplacement sur sol plat
                 ySign = 0;
             }
@@ -55,15 +61,15 @@ public class F_Camera : MonoBehaviour
         // FAIRE LE CAS DU RETOURNEMENT => 6 c'est bien
         // QUAND ON MARCHE NORMALEMENT => 6 c'est trop, la cam n'est plus a l'avant
         
-        if(playerController.rb.linearVelocity.magnitude > 0 && playerController.rb.linearVelocity.magnitude < playerController.MovementSpeed / 2) {
+        if(gm.PlayerCharacter.RigidBod.linearVelocity.magnitude > 0 && gm.PlayerCharacter.RigidBod.linearVelocity.magnitude < gm.PlayerCharacter.MovementSpeed / 2) {
             cinemachinePositionComposer.TargetOffset = new Vector2(xOffset, yOffset * ySign);
             cinemachinePositionComposer.Damping = Vector2.one * baseDamping;
             return;
         }
 
-        if(playerController.rb.linearVelocity.magnitude >= playerController.MovementSpeed / 2 && playerController.rb.linearVelocity.magnitude < playerController.MovementSpeed * 1.5f) {
-            float _xOffsetWithVelo = xOffset + Mathf.Abs(playerController.rb.linearVelocity.x) / 2.5f;
-            float _yOffsetWithVelo = yOffset + Mathf.Abs(playerController.rb.linearVelocity.y) / 2.5f;
+        if(gm.PlayerCharacter.RigidBod.linearVelocity.magnitude >= gm.PlayerCharacter.MovementSpeed / 2 && gm.PlayerCharacter.RigidBod.linearVelocity.magnitude < gm.PlayerCharacter.MovementSpeed * 1.5f) {
+            float _xOffsetWithVelo = xOffset + Mathf.Abs(gm.PlayerCharacter.RigidBod.linearVelocity.x) / 2.5f;
+            float _yOffsetWithVelo = yOffset + Mathf.Abs(gm.PlayerCharacter.RigidBod.linearVelocity.y) / 2.5f;
             cinemachinePositionComposer.TargetOffset = new Vector2(_xOffsetWithVelo, ySign * _yOffsetWithVelo);
             /*
             float _xDampingWithVelo = baseDamping - playerController.rb.linearVelocity.x / 20;
@@ -76,10 +82,10 @@ public class F_Camera : MonoBehaviour
         }
 
 
-        if(playerController.rb.linearVelocity.magnitude >= playerController.MovementSpeed * 1.5f) {
-            float _xOffsetWithVelo = xOffset + Mathf.Abs(playerController.rb.linearVelocity.x) / 5;
-            float _yOffsetWithVelo = yOffset + Mathf.Abs(playerController.rb.linearVelocity.y) / 8;
-            float _newDamping = Mathf.Clamp(baseDamping - playerController.rb.linearVelocity.magnitude / 15, 1f, baseDamping);
+        if(gm.PlayerCharacter.RigidBod.linearVelocity.magnitude >= gm.PlayerCharacter.MovementSpeed * 1.5f) {
+            float _xOffsetWithVelo = xOffset + Mathf.Abs(gm.PlayerCharacter.RigidBod.linearVelocity.x) / 5;
+            float _yOffsetWithVelo = yOffset + Mathf.Abs(gm.PlayerCharacter.RigidBod.linearVelocity.y) / 8;
+            float _newDamping = Mathf.Clamp(baseDamping - gm.PlayerCharacter.RigidBod.linearVelocity.magnitude / 15, 1f, baseDamping);
 
             cinemachinePositionComposer.TargetOffset = new Vector2(_xOffsetWithVelo, ySign * _yOffsetWithVelo);
             cinemachinePositionComposer.Damping = new Vector2(_newDamping, _newDamping);
@@ -87,5 +93,16 @@ public class F_Camera : MonoBehaviour
         } 
 
 
+    }
+
+
+    public void SwitchTarget() {
+        if(currentTarget.gameObject.GetComponent<F_PlayerController4>() != null) {
+            cinemachineCam.Follow = gm.PlayerSpaceship.transform;
+        } else {
+            cinemachineCam.Follow = gm.PlayerCharacter.transform;
+        }
+
+        currentTarget = cinemachineCam.Follow;
     }
 }
