@@ -40,6 +40,11 @@ public class F_GameManager : MonoBehaviour
     [SerializeField] Color firstForwardColorEdgeFill = new Color();
     [SerializeField] Color lastForwardColorEdgeFill = new Color();
     [SerializeField] float maxCutofMaskValue = 0.65f;
+    [SerializeField] float portalAnimationDuration = 1f;
+    [SerializeField] float propagationDelayAnimPortal = 0.2f;
+
+    [SerializeField] int previousDelayMultiplier = 1;
+    [SerializeField] int nextDelayMultiplier = 1;
 
     [SerializeField] Gradient stratesGradientFill = new Gradient();
     [SerializeField] Gradient stratesGradientEdge = new Gradient();
@@ -60,6 +65,10 @@ public class F_GameManager : MonoBehaviour
     public F_SpaceshipController PlayerSpaceship => playerSpaceship;
     public F_Strate ClosestStrate => closestStrate;
     public PlayerMode CurrentPlayerMode => myPlayerMode;
+    public float PortalAnimationDuration => portalAnimationDuration;
+    public float PropagationDelayAnimPortal => propagationDelayAnimPortal;
+    public int PreviousDelayMultiplier { get => previousDelayMultiplier; set => previousDelayMultiplier = value; }
+    public int NextDelayMultiplier { get => nextDelayMultiplier; set => nextDelayMultiplier = value; }
 
     private void Awake() {
 
@@ -79,6 +88,7 @@ public class F_GameManager : MonoBehaviour
     void Start()
     {
 
+        OnStrateSnaping += StrateSnaped;
         
         OnShipTakeof += SwitchToSpaceshipMobileMode;
 
@@ -114,23 +124,35 @@ public class F_GameManager : MonoBehaviour
     }
 
 
+    public void StrateSnaped() {
+        closestStrate.SetSnapedStrate();
+    }
 
 
     public void SwitchToSpaceshipStationaryMode() {
+
+        currentStrate = closestStrate;
+        currentStrate.SetCurrentStrate();
+        canCheckStrates = false;
 
         if(myPlayerMode == PlayerMode.character) {
             playerCharacter.transform.position = playerSpaceship.CharaSeat.transform.position;
             playerCharacter.RigidBod.simulated = false;
             playerCharacter.transform.parent = playerSpaceship.transform;
+
         }else if(myPlayerMode == PlayerMode.spaceshipMobile) {
-            //rien pour l'instant
+
+            //close portal
+            //reset multipliers
+            previousDelayMultiplier = 1;
+            nextDelayMultiplier = 1;
+            allStrates[closestStrateIndex].AnimatePortal(false,0);
+
         }
 
         myPlayerMode = PlayerMode.spaceshipStationary;
 
-        currentStrate = closestStrate;
-        currentStrate.SetCurrentStrate();
-        canCheckStrates = false;
+
     }
 
     public void SwitchToSpaceshipMobileMode() {
@@ -139,6 +161,11 @@ public class F_GameManager : MonoBehaviour
         currentStrate.SetClosestStrate();
         currentStrate = null;
 
+        //open portal
+        //reset multiplier
+        previousDelayMultiplier = 1;
+        nextDelayMultiplier = 1;
+        allStrates[closestStrateIndex].AnimatePortal(true,0);
     }
 
     public void SwitchToCharacterMode() {
@@ -158,12 +185,25 @@ public class F_GameManager : MonoBehaviour
         for(int i = 0; i < totalStrateNumber; i++) {
 
 
+            allStrates[i].MyGameManger = this;
             allStrates[i].SortingOrderStrate = -i;
             allStrates[i].SpriteShapeRenderer = allStrates[i].transform.GetComponentInChildren<SpriteShapeRenderer>();
             allStrates[i].SpriteShapeCollider = allStrates[i].transform.GetComponentInChildren<SpriteShapeController>().polygonCollider;
             allStrates[i].SpriteMask = allStrates[i].transform.GetComponentInChildren<SpriteMask>();
             allStrates[i].SetDistantStrate();
             allStrates[i].AnimateColor(lastForwardColorEdgeFill, lastForwardColorEdgeFill, maxCutofMaskValue);
+
+
+            if(i == 0) {
+                allStrates[i].MyPreviousStrate = null;
+                allStrates[i].MyNextStrate = allStrates[i + 1];
+            }else if( i == totalStrateNumber-1) {
+                allStrates[i].MyPreviousStrate = allStrates[i - 1];
+                allStrates[i].MyNextStrate = null;
+            } else {
+                allStrates[i].MyPreviousStrate = allStrates[i - 1];
+                allStrates[i].MyNextStrate = allStrates[i + 1];
+            }
 
 
             float _zDistBetweenStrateAndPlayer = Mathf.Abs(allStrates[i].transform.position.z - playerSpaceship.transform.position.z);
@@ -180,6 +220,7 @@ public class F_GameManager : MonoBehaviour
         UpdateStratesColors();
     }
 
+    //UPDATE
     void UpdateClosestStrate() {
         //Si le joueur est en mode pilotage (canCheckStrates), checker la distance entre previous, closest et next strates pour mettre a jour 
 
@@ -224,6 +265,7 @@ public class F_GameManager : MonoBehaviour
                 closestStrate = allStrates[i];
                 closestStrate.SetClosestStrate();
                 closestStrateIndex = i;
+                closestStrate.AnimatedMask(maxCutofMaskValue, 1);
                 SetPreviousNextStrates();
 
                 break;
@@ -237,6 +279,7 @@ public class F_GameManager : MonoBehaviour
         if(closestStrateIndex < totalStrateNumber - 1) {
             nextStrate = allStrates[closestStrateIndex + 1];
             nextStrate.SetNextStrate();
+            //nextStrate.AnimatedMask(maxCutofMaskValue,1);
 
         } else {
             Debug.Log("Closest is FINAL STRATE");
@@ -247,6 +290,7 @@ public class F_GameManager : MonoBehaviour
             previousStrate = allStrates[closestStrateIndex - 1];
             previousStrate.SetPreviousStrate();
             previousStrate.AnimateColor(backwardColorFill,backwardColorEdge, maxCutofMaskValue);
+            previousStrate.AnimatedMask(maxCutofMaskValue,-1);
 
         } else {
             Debug.Log("Closest is STRATE 1");
@@ -257,28 +301,19 @@ public class F_GameManager : MonoBehaviour
 
     void UpdateStratesColors() {
 
- 
         int _maxIndex;
         for(_maxIndex = closestStrateIndex; _maxIndex < totalStrateNumber && _maxIndex <= closestStrateIndex + numberOfForwardStrateToUpdate; _maxIndex++) {
         }
 
         for(int i = closestStrateIndex; i < _maxIndex; i++) {
-            //Debug.Log("i = " + i);
-            //Debug.Log("evaluate time = " + (float)i / totalNumberOfStratesToUpdate);
-
-            //si closestStrateIndex = 3 et numberOfForwardStrateToUpdate = 3;
-            //premier for : i = 3 , _gradientPosition = (3-3) / 3 => 0
-            //deuxième for : i = 4, _gradientPosition = (4-3) / 3 => 0.333
-            //troisième for : i = 5, _gradientPosition = (5-3) / 3 => 0.666
-            //quatrième for : i = 6, _gradientPosition = (6-3) / 3 => 1
-            //Debug.Log("expected 4 loop");
             float _gradientPosition = ((float) i - closestStrateIndex) / (float) numberOfForwardStrateToUpdate;
             allStrates[i].AnimateColor(stratesGradientFill.Evaluate(_gradientPosition), stratesGradientEdge.Evaluate(_gradientPosition), maxCutofMaskValue);
+            //allStrates[i].AnimatedMask(maxCutofMaskValue, 1);
         }
-        //Debug.Log("AFTER 4 loop");
 
     }
 
+    //END UPDATE
 
     void SetAllStrateList() {
         allStrates.Clear();
@@ -290,7 +325,7 @@ public class F_GameManager : MonoBehaviour
     [ContextMenu("Setup All Strates")]
 
     void SetupAllStrates() {
-
+        //CALL IN AWAKE
         SetAllStrateList();
         InitStrates();
 

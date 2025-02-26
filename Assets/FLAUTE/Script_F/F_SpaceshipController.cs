@@ -191,8 +191,10 @@ public class F_SpaceshipController : MonoBehaviour
 
             if(!isClosestStrateSnaped) {
                 LandingScanParticles.Play();
+                gm.OnStrateSnaping.Invoke();
             }
             isClosestStrateSnaped = true;
+            
             //landingScanEmitModule.rateOverTime = baseLandingScanEmitParticles;
             //Debug.Log("CheckClosestStrateSnaped LandingScanParticles PLAY");
            

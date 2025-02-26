@@ -1,13 +1,16 @@
+using DG.Tweening;
 using NUnit.Framework;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.U2D;
+using UnityEngine.UIElements;
 
 public class F_IncrementStuff : MonoBehaviour
 {
 
     [SerializeField] Transform strateContainer;
     [SerializeField] List<GameObject> allObjects = new List<GameObject>();
+    [SerializeField] List<SpriteRenderer> spriteRenderers = new List<SpriteRenderer>();
     [SerializeField] float spacing = 1;
 
     [SerializeField] Color startColor = new Color();
@@ -16,7 +19,7 @@ public class F_IncrementStuff : MonoBehaviour
 
     void Start()
     {
-        
+    
     }
 
     // Update is called once per frame
@@ -66,5 +69,12 @@ public class F_IncrementStuff : MonoBehaviour
 
         }
 
+    }
+
+    [ContextMenu("Random Colors SpriteRenderers")]
+    void RandomColor() {
+        foreach(SpriteRenderer _spriteRenderer in spriteRenderers) {
+            _spriteRenderer.color = new Color(Random.value, Random.value, Random.value);
+        }
     }
 }
